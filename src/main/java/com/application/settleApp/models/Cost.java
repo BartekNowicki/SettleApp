@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +24,14 @@ public class Cost {
   private String name;
   private Integer quantity;
   private Double unitPrice;
+
+  // defaults to: FetchType.EAGER
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
+
+  // defaults to: FetchType.EAGER
+  @ManyToOne
+  @JoinColumn(name = "event_id")
+  private Event event;
 }

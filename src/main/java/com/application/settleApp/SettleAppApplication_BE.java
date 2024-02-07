@@ -6,9 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SettleAppApplication_BE {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SettleAppApplication_BE.class, args);
-		System.out.println("YOOOOOOOOOOOOO");
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(SettleAppApplication_BE.class, args);
+  }
 }

@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Set<User> findAll() {
-      return new HashSet<>(userRepository.findAll());
+    return new HashSet<>(userRepository.findAll());
   }
 
   @Override

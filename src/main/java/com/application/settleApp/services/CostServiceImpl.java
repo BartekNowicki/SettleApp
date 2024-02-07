@@ -23,7 +23,7 @@ public class CostServiceImpl implements CostService {
 
   @Override
   public Set<Cost> findAll() {
-      return new HashSet<>(costRepository.findAll());
+    return new HashSet<>(costRepository.findAll());
   }
 
   @Override
