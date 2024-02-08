@@ -2,9 +2,10 @@ package com.application.settleApp.services;
 
 import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.UserRepository;
-import java.util.HashSet;
-import java.util.Set;
+import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -13,28 +14,38 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public User findById(Long id) {
-    return userRepository.findById(id).orElse(null);
+    return userRepository
+        .findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
   }
 
   @Override
-  public User save(User object) {
-    return userRepository.save(object);
+  public User save(User user) {
+    return userRepository.save(user);
   }
 
   @Override
-  public Set<User> findAll() {
-    return new HashSet<>(userRepository.findAll());
+  public List<User> findAll() {
+    return userRepository.findAll();
   }
 
   @Override
-  public User delete(User object) {
-    userRepository.delete(object);
-    return object;
+  public User delete(User user) {
+    if (user == null) {
+      throw new IllegalArgumentException("Cannot delete a null user.");
+    }
+    userRepository.delete(user);
+    return user;
   }
 
   @Override
-  public Long deleteById(Long id) {
-    userRepository.deleteById(id);
-    return id;
+  public User deleteById(Long id) {
+    User user =
+        userRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+    userRepository.delete(user);
+
+    return user;
   }
 }

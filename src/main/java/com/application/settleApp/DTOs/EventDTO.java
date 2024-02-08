@@ -18,4 +18,5 @@ public class EventDTO {
   private LocalDate eventDate;
   private Long createdByUserId;
   private Set<Long> participantIds;
+  private Set<Long> productIds;
 }

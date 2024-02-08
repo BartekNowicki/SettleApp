@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class CostMapper {
 
-  public static CostDTO toDTO(Cost cost) {
+  public CostDTO toDTO(Cost cost) {
     CostDTO dto = new CostDTO();
     dto.setProductId(cost.getProductId());
     dto.setName(cost.getName());
@@ -20,14 +20,12 @@ public class CostMapper {
     return dto;
   }
 
-  public static Cost fromDTO(CostDTO dto, User user, Event event) {
+  public Cost fromDTO(CostDTO dto) {
     Cost cost = new Cost();
     cost.setProductId(dto.getProductId());
     cost.setName(dto.getName());
     cost.setQuantity(dto.getQuantity());
     cost.setUnitPrice(dto.getUnitPrice());
-    cost.setUser(user);
-    cost.setEvent(event);
 
     return cost;
   }

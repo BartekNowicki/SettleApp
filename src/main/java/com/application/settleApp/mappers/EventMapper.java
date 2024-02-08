@@ -1,13 +1,16 @@
 package com.application.settleApp.mappers;
 
 import com.application.settleApp.DTOs.EventDTO;
+import com.application.settleApp.models.Cost;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.models.User;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EventMapper {
 
-  public static EventDTO toDTO(Event event) {
+  public EventDTO toDTO(Event event) {
     EventDTO dto = new EventDTO();
     dto.setEventId(event.getEventId());
     dto.setStatus(event.getStatus());
@@ -15,6 +18,8 @@ public class EventMapper {
     dto.setCreatedByUserId(event.getCreatedByUserId());
     dto.setParticipantIds(
         event.getParticipants().stream().map(User::getUserId).collect(Collectors.toSet()));
+    dto.setProductIds(
+        event.getCosts().stream().map(Cost::getProductId).collect(Collectors.toSet()));
 
     return dto;
   }

@@ -15,5 +15,5 @@ public class UserDTO {
   private String fname;
   private String lname;
   private Set<Long> eventIds;
-  private Set<Long> costIds;
+  private Set<Long> productIds;
 }

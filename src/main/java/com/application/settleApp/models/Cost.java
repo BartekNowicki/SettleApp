@@ -26,11 +26,13 @@ public class Cost {
   private Double unitPrice;
 
   // defaults to: FetchType.EAGER
+  // owning side
   @ManyToOne
   @JoinColumn(name = "user_id")
   private User user;
 
   // defaults to: FetchType.EAGER
+  // owning side
   @ManyToOne
   @JoinColumn(name = "event_id")
   private Event event;

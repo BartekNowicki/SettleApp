@@ -1,15 +1,15 @@
 package com.application.settleApp.services;
 
-import java.util.Set;
+import java.util.List;
 
 public interface CrudService<T, ID> {
   T findById(ID id);
 
   T save(T object);
 
-  Set<T> findAll();
+  List<T> findAll();
 
   T delete(T object);
 
-  ID deleteById(ID id);
+  T deleteById(ID id);
 }
