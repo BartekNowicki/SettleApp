@@ -69,7 +69,6 @@ public class EventServiceImplTest {
     event99.setEventId(99L);
 
     User user = new User();
-    Set<Cost> costs = Set.of(new Cost());
     when(userService.findById(anyLong())).thenReturn(user);
     when(costService.findById(anyLong())).thenReturn(new Cost());
 
