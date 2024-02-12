@@ -6,10 +6,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
-
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,4 +34,14 @@ public class User {
 
   @OneToMany(mappedBy = "user")
   private Set<Cost> costs = new HashSet<>();
+
+  public void addCost(Cost cost) {
+    this.costs.add(cost);
+    cost.setUser(this);
+  }
+
+  public void addEvent(Event event) {
+    events.add(event);
+    event.getParticipants().add(this);
+  }
 }

@@ -27,7 +27,7 @@ public class settleAppConfig {
 
   @Bean
   public UserServiceImpl userService() {
-    return new UserServiceImpl(userRepository);
+    return new UserServiceImpl(userRepository, costRepository);
   }
 
   @Bean
@@ -47,6 +47,6 @@ public class settleAppConfig {
 
   @Bean
   public EventServiceImpl eventService() {
-    return new EventServiceImpl(eventRepository, userService(), costService());
+    return new EventServiceImpl(eventRepository, userRepository, userService(), costService());
   }
 }

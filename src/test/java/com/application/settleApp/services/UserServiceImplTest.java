@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.application.settleApp.models.User;
+import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import org.mockito.MockitoAnnotations;
 public class UserServiceImplTest {
 
   @Mock private UserRepository userRepository;
+  @Mock private CostRepository costRepository;
 
   @InjectMocks private UserServiceImpl userService;
 

@@ -6,6 +6,7 @@ import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.AllArgsConstructor;
 
@@ -28,10 +29,12 @@ public class CostServiceImpl implements CostService {
     return costRepository.save(cost);
   }
 
+  @Transactional
   public Cost save(Cost cost, Long relatedUserId, Long relatedEventId) {
 
     User user = userService.findById(relatedUserId);
     cost.setUser(user);
+    user.addCost(cost);
 
     Event event =
         eventRepository
@@ -39,6 +42,7 @@ public class CostServiceImpl implements CostService {
             .orElseThrow(
                 () -> new EntityNotFoundException("Event not found with id: " + relatedEventId));
     cost.setEvent(event);
+    event.addCost(cost);
 
     return costRepository.save(cost);
   }
@@ -48,21 +52,34 @@ public class CostServiceImpl implements CostService {
     return costRepository.findAll();
   }
 
+  private void removeCostFromUserAndEvent(Cost cost) {
+    if (cost.getUser() != null) {
+      cost.getUser().getCosts().remove(cost);
+    }
+    if (cost.getEvent() != null) {
+      cost.getEvent().getCosts().remove(cost);
+    }
+  }
+
   @Override
+  @Transactional
   public Cost delete(Cost cost) {
     if (cost == null) {
       throw new IllegalArgumentException("Cannot delete a null cost.");
     }
+    removeCostFromUserAndEvent(cost);
     costRepository.delete(cost);
     return cost;
   }
 
   @Override
+  @Transactional
   public Cost deleteById(Long id) {
     Cost cost =
         costRepository
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Cost not found with id: " + id));
+    removeCostFromUserAndEvent(cost);
     costRepository.delete(cost);
 
     return cost;

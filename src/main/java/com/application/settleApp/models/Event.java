@@ -45,4 +45,9 @@ public class Event {
 
   @OneToMany(mappedBy = "event")
   private Set<Cost> costs = new HashSet<>();
+
+  public void addCost(Cost cost) {
+    this.costs.add(cost);
+    cost.setEvent(this);
+  }
 }
