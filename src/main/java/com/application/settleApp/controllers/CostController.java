@@ -46,7 +46,7 @@ public class CostController {
   @PatchMapping("/{costId}")
   public ResponseEntity<CostDTO> updateCost(
       @PathVariable Long costId, @RequestBody CostDTO costDTO) {
-    if (costDTO.getUserId() != null && !Objects.equals(costId, costDTO.getUserId())) {
+    if (costDTO.getProductId() != null && !Objects.equals(costId, costDTO.getProductId())) {
       throw new IllegalArgumentException("Mismatch between path variable costId and costDTO id");
     }
     Cost updatedCost =

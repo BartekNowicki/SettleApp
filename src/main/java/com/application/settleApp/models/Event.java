@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,5 +50,18 @@ public class Event {
   public void addCost(Cost cost) {
     this.costs.add(cost);
     cost.setEvent(this);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Event event = (Event) o;
+    return Objects.equals(eventId, event.eventId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(eventId);
   }
 }
