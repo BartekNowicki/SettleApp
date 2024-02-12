@@ -21,9 +21,9 @@ public class CostController {
   private final CostMapper costMapper;
 
   @PostMapping
-  public ResponseEntity<?> createCost(@RequestBody CostDTO costDTO) {
+  public ResponseEntity<CostDTO> createCost(@RequestBody CostDTO costDTO) {
     if (costDTO.getUserId() == null || costDTO.getEventId() == null) {
-      return ResponseEntity.badRequest().body("Both userId and eventId must be provided.");
+      throw new IllegalArgumentException("Both userId and eventId must be provided.");
     }
     Cost createdCost =
         costService.save(costMapper.fromDTO(costDTO), costDTO.getUserId(), costDTO.getEventId());
@@ -44,10 +44,10 @@ public class CostController {
   }
 
   @PatchMapping("/{costId}")
-  public ResponseEntity<?> updateCost(@PathVariable Long costId, @RequestBody CostDTO costDTO) {
+  public ResponseEntity<CostDTO> updateCost(
+      @PathVariable Long costId, @RequestBody CostDTO costDTO) {
     if (costDTO.getUserId() != null && !Objects.equals(costId, costDTO.getUserId())) {
-      return ResponseEntity.badRequest()
-          .body("Mismatch between path variable costId and costDTO id");
+      throw new IllegalArgumentException("Mismatch between path variable costId and costDTO id");
     }
     Cost updatedCost =
         costService.save(costMapper.fromDTO(costDTO), costDTO.getUserId(), costDTO.getEventId());

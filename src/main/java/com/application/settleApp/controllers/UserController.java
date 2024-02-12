@@ -40,10 +40,10 @@ public class UserController {
   }
 
   @PatchMapping("/{userId}")
-  public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody UserDTO userDTO) {
+  public ResponseEntity<UserDTO> updateUser(
+      @PathVariable Long userId, @RequestBody UserDTO userDTO) {
     if (userDTO.getUserId() != null && !Objects.equals(userId, userDTO.getUserId())) {
-      return ResponseEntity.badRequest()
-          .body("Mismatch between path variable userId and userDTO id");
+      throw new IllegalArgumentException("Mismatch between path variable userId and userDTO id");
     }
     User user = userMapper.fromDTO(userDTO);
     User updatedUser = userService.save(user);

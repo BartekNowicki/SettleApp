@@ -40,10 +40,10 @@ public class EventController {
   }
 
   @PatchMapping("/{eventId}")
-  public ResponseEntity<?> updateEvent(@PathVariable Long eventId, @RequestBody EventDTO eventDTO) {
+  public ResponseEntity<EventDTO> updateEvent(
+      @PathVariable Long eventId, @RequestBody EventDTO eventDTO) {
     if (eventDTO.getEventId() != null && !Objects.equals(eventId, eventDTO.getEventId())) {
-      return ResponseEntity.badRequest()
-          .body("Mismatch between path variable eventId and eventDTO id");
+      throw new IllegalArgumentException("Mismatch between path variable eventId and eventDTO id");
     }
 
     Event updatedEvent;
