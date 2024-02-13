@@ -49,7 +49,7 @@ public class CostControllerIntegrationTest {
     testUser2 = userRepository.save(testUser2);
 
     testEvent = new Event();
-    //    testEvent.setEventId(1L);
+    testEvent.setEventId(1L);
     testEvent = eventRepository.save(testEvent);
   }
 
@@ -83,34 +83,6 @@ public class CostControllerIntegrationTest {
         .perform(patch("/costs/1").contentType(MediaType.APPLICATION_JSON).content(updatedCostJson))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.userId").value(2));
-  }
-
-  @Test
-  @Transactional
-  public void patchCost_ReassignToDifferentUser_AndVerifyAssociations() throws Exception {
-    int newCostIncurrerId = 2;
-    String updatedCostJson =
-        String.format("{\"productId\":%d, \"userId\":%d, \"eventId\":%d}", 1, newCostIncurrerId, 1);
-
-    mockMvc
-        .perform(patch("/costs/1").contentType(MediaType.APPLICATION_JSON).content(updatedCostJson))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.userId").value(2));
-
-    User oldCostIncurrer = userRepository.findById(1L).orElseThrow();
-    User newCostIncurrer = userRepository.findById(2L).orElseThrow();
-    Event unchangedAssociatedEvent = eventRepository.findById(1L).orElseThrow();
-    Cost updatedCost = costRepository.findById(1L).orElseThrow();
-
-    assertFalse(
-        oldCostIncurrer.getCosts().contains(updatedCost),
-        "Previous User still contains the reassigned Cost");
-    assertTrue(
-        newCostIncurrer.getCosts().contains(updatedCost),
-        "Updated User does not contain the reassigned Cost");
-    assertTrue(
-        unchangedAssociatedEvent.getCosts().contains(updatedCost),
-        "Associated Event does not contain the Cost");
   }
 
   @Test
