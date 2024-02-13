@@ -1,16 +1,20 @@
 package com.application.settleApp.controllers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.application.settleApp.DTOs.CostDTO;
+import com.application.settleApp.DTOs.UserDTO;
 import com.application.settleApp.models.Cost;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.EventRepository;
 import com.application.settleApp.repositories.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +32,7 @@ public class CostControllerIntegrationTest {
   @Autowired private UserRepository userRepository;
   @Autowired private EventRepository eventRepository;
   @Autowired private CostRepository costRepository;
+  @Autowired private ObjectMapper objectMapper;
 
   private User testUser1;
   private User testUser2;
@@ -44,7 +49,7 @@ public class CostControllerIntegrationTest {
     testUser2 = userRepository.save(testUser2);
 
     testEvent = new Event();
-    testEvent.setEventId(1L);
+    //    testEvent.setEventId(1L);
     testEvent = eventRepository.save(testEvent);
   }
 
@@ -109,6 +114,16 @@ public class CostControllerIntegrationTest {
   }
 
   @Test
+  public void deleteCost_ThatDoesNotExist_ThrowsNotFound() throws Exception {
+    long nonExistentCostId = 99999L;
+
+    mockMvc
+        .perform(delete("/costs/" + nonExistentCostId).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.message").value("Cost not found with id: " + nonExistentCostId));
+  }
+
+  @Test
   public void deleteCostAndVerifyItIsRemoved() throws Exception {
     User testUser = new User();
     testUser = userRepository.save(testUser);
@@ -166,5 +181,51 @@ public class CostControllerIntegrationTest {
         remainingUser.getCosts().isEmpty(), "User should no longer have any associated Costs");
     assertTrue(
         remainingEvent.getCosts().isEmpty(), "Event should no longer have any associated Costs");
+  }
+
+  @Test
+  @Transactional
+  public void updateCostWithUserAndVerifyAssociation() throws Exception {
+    UserDTO newUser = new UserDTO();
+    String newUserJson = objectMapper.writeValueAsString(newUser);
+    String userResponse =
+        mockMvc
+            .perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(newUserJson))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    UserDTO createdUser = objectMapper.readValue(userResponse, UserDTO.class);
+
+    CostDTO newCost = new CostDTO();
+    newCost.setUserId(createdUser.getUserId());
+    newCost.setEventId(1L);
+    String newCostJson = objectMapper.writeValueAsString(newCost);
+    String costResponse =
+        mockMvc
+            .perform(post("/costs").contentType(MediaType.APPLICATION_JSON).content(newCostJson))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    CostDTO createdCost = objectMapper.readValue(costResponse, CostDTO.class);
+
+    Cost updatedCost =
+        costRepository
+            .findById(createdCost.getProductId())
+            .orElseThrow(() -> new AssertionError("Cost not found"));
+    User associatedUser =
+        userRepository
+            .findById(createdUser.getUserId())
+            .orElseThrow(() -> new AssertionError("User not found"));
+
+    assertEquals(
+        associatedUser.getUserId(),
+        updatedCost.getUser().getUserId(),
+        "Cost does not contain the correct user");
+
+    boolean containsCost =
+        associatedUser.getCosts().stream()
+            .anyMatch(cost -> cost.getProductId() == updatedCost.getProductId());
+
+    assertTrue(containsCost, "User does not have the expected cost in their collection of costs");
   }
 }
