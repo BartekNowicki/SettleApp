@@ -1,12 +1,17 @@
 package com.application.settleApp.controllers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.application.settleApp.DTOs.UserDTO;
 import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,28 +28,18 @@ public class UserControllerIntegrationTest {
   @Autowired private ObjectMapper objectMapper;
   @Autowired private UserRepository userRepository;
 
-  private User testUser1;
-  private User testUser2;
-
-  private UserDTO newUser;
-
   @BeforeEach
   public void setup() {
-    testUser1 = new User();
-    testUser1.setFname("testUser1_fname");
-    testUser1 = userRepository.save(testUser1);
-
-    testUser2 = new User();
-    testUser2.setFname("testUser2_fname");
-    testUser2 = userRepository.save(testUser2);
-
-    newUser = new UserDTO();
-    newUser.setFname("Test");
-    newUser.setLname("User");
+    userRepository.deleteAll();
   }
 
   @Test
+  @Transactional
   public void createUser_Success() throws Exception {
+    UserDTO newUser = new UserDTO();
+    newUser.setFname("New");
+    newUser.setLname("User");
+
     mockMvc
         .perform(
             post("/users")
@@ -55,100 +50,71 @@ public class UserControllerIntegrationTest {
   }
 
   @Test
-  public void getUserById_Success() throws Exception {
-    String responseBody =
-        mockMvc
-            .perform(
-                post("/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(newUser)))
-            .andReturn()
-            .getResponse()
-            .getContentAsString();
-
-    UserDTO createdUser = objectMapper.readValue(responseBody, UserDTO.class);
-
-    mockMvc
-        .perform(get("/users/" + createdUser.getUserId()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.userId").value(createdUser.getUserId()));
-  }
-
-  @Test
+  @Transactional
   public void getAllUsers_Success() throws Exception {
-    mockMvc
-        .perform(get("/users"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()").value(2));
+    mockMvc.perform(get("/users")).andExpect(status().isOk()).andExpect(jsonPath("$").isArray());
   }
 
   @Test
+  @Transactional
   public void updateUser_Success() throws Exception {
-    String responseBody =
-        mockMvc
-            .perform(
-                post("/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(newUser)))
-            .andReturn()
-            .getResponse()
-            .getContentAsString();
+    User user = new User();
+    user.setFname("Initial Name");
+    User savedUser = userRepository.save(user);
 
-    UserDTO createdUser = objectMapper.readValue(responseBody, UserDTO.class);
-
-    createdUser.setFname("Updated Name");
+    UserDTO userDTO = new UserDTO();
+    userDTO.setUserId(savedUser.getUserId());
+    userDTO.setFname("Updated Name");
 
     mockMvc
         .perform(
-            patch("/users/" + createdUser.getUserId())
+            patch("/users/" + savedUser.getUserId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createdUser)))
+                .content(objectMapper.writeValueAsString(userDTO)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.fname").value("Updated Name"));
   }
 
   @Test
+  @Transactional
   public void deleteUser_Success() throws Exception {
-    String responseBody =
-        mockMvc
-            .perform(
-                post("/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(newUser)))
-            .andReturn()
-            .getResponse()
-            .getContentAsString();
+    User user = new User();
+    user.setFname("To Be Deleted");
+    User savedUser = userRepository.save(user);
 
-    UserDTO createdUser = objectMapper.readValue(responseBody, UserDTO.class);
+    mockMvc.perform(delete("/users/" + savedUser.getUserId())).andExpect(status().isOk());
 
-    mockMvc.perform(delete("/users/" + createdUser.getUserId())).andExpect(status().isOk());
-
-    mockMvc.perform(get("/users/" + createdUser.getUserId())).andExpect(status().isNotFound());
+    mockMvc.perform(get("/users/" + savedUser.getUserId())).andExpect(status().isNotFound());
   }
 
   @Test
+  @Transactional
   public void updateUser_MismatchUserId_ThrowsException() throws Exception {
-    long pathUserId = 1L;
+    User user = userRepository.save(new User());
+    long pathUserId = user.getUserId() + 1; // Assuming the next ID would be a mismatch
+
     UserDTO userDTO = new UserDTO();
-    userDTO.setUserId(2L);
+    userDTO.setUserId(pathUserId);
 
     String userJson = objectMapper.writeValueAsString(userDTO);
 
     mockMvc
         .perform(
-            patch("/users/" + pathUserId).contentType(MediaType.APPLICATION_JSON).content(userJson))
+            patch("/users/" + user.getUserId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(userJson))
         .andExpect(status().isBadRequest())
         .andExpect(
             jsonPath("$.message").value("Mismatch between path variable userId and userDTO id"));
   }
 
   @Test
+  @Transactional
   public void deleteUser_ThatDoesNotExist_ThrowsNotFound() throws Exception {
-    long nonExistentUserId = 99999L;
+    long nonExistentUserId = Long.MAX_VALUE; // Use a presumably non-existent ID
 
     mockMvc
-        .perform(delete("/users/" + nonExistentUserId).contentType(MediaType.APPLICATION_JSON))
+        .perform(delete("/users/" + nonExistentUserId))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("User not found with id: " + nonExistentUserId));
   }

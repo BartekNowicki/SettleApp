@@ -3,8 +3,11 @@ package com.application.settleApp.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.application.settleApp.DTOs.CostDTO;
 import com.application.settleApp.mappers.CostMapper;
@@ -131,5 +134,53 @@ public class CostControllerIntegrationTest {
     assertTrue(costRepository.findById(savedCost.getProductId()).isPresent());
     Cost updatedCost = costRepository.findById(savedCost.getProductId()).get();
     assertEquals(testUser2.getUserId(), updatedCost.getUser().getUserId());
+  }
+
+  @Test
+  @Transactional
+  public void patchCost_ReassignToDifferentUser_AndVerifyAssociations() throws Exception {
+    User initialUser = new User();
+    initialUser.setFname("Initial User");
+    initialUser = userRepository.save(initialUser);
+
+    Event initialEvent = new Event();
+    initialEvent = eventRepository.save(initialEvent);
+
+    Cost initialCost = new Cost();
+    initialCost.setUser(initialUser);
+    initialCost.setEvent(initialEvent);
+    initialCost = costRepository.save(initialCost);
+
+    CostDTO costDTO = new CostMapper().toDTO(initialCost);
+
+    User newUser = new User();
+    newUser.setFname("New User");
+    newUser = userRepository.save(newUser);
+
+    costDTO.setUserId(newUser.getUserId());
+
+    String updatedCostJson = objectMapper.writeValueAsString(costDTO);
+
+    mockMvc
+        .perform(
+            patch("/costs/" + initialCost.getProductId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(updatedCostJson))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.userId").value(newUser.getUserId()));
+
+    User updatedUser = userRepository.findById(newUser.getUserId()).orElseThrow();
+    Event updatedEvent = eventRepository.findById(initialEvent.getEventId()).orElseThrow();
+    Cost updatedCost = costRepository.findById(initialCost.getProductId()).orElseThrow();
+
+    assertEquals(
+        updatedUser.getUserId(),
+        updatedCost.getUser().getUserId(),
+        "Cost is not reassigned to the new user");
+    assertTrue(
+        updatedEvent.getCosts().contains(updatedCost), "Event does not contain the updated cost");
+    assertTrue(
+        updatedUser.getCosts().contains(updatedCost),
+        "New user does not contain the reassigned cost");
   }
 }
