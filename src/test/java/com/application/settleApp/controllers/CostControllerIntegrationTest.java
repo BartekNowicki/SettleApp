@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.application.settleApp.DTOs.CostDTO;
+import com.application.settleApp.mappers.CostMapper;
 import com.application.settleApp.models.Cost;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.models.User;
@@ -79,7 +80,7 @@ public class CostControllerIntegrationTest {
   public void patchCost_ReassignToDifferentUser() throws Exception {
     Cost savedCost = costRepository.save(new Cost());
 
-    CostDTO updatedCostDTO = new CostDTO();
+    CostDTO updatedCostDTO = new CostMapper().toDTO(savedCost);
     updatedCostDTO.setUserId(testUser2.getUserId());
     updatedCostDTO.setEventId(testEvent.getEventId());
 
@@ -117,8 +118,7 @@ public class CostControllerIntegrationTest {
     newCost.setUser(testUser2);
     Cost savedCost = costRepository.save(newCost);
 
-    CostDTO costDTO = new CostDTO();
-    costDTO.setUserId(testUser2.getUserId());
+    CostDTO costDTO = new CostMapper().toDTO(savedCost);
     costDTO.setEventId(testEvent.getEventId());
 
     mockMvc
