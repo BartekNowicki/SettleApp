@@ -5,11 +5,14 @@ import com.application.settleApp.models.Cost;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.models.User;
 import java.util.stream.Collectors;
+
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventMapper {
 
+  @Transactional
   public EventDTO toDTO(Event event) {
     EventDTO dto = new EventDTO();
     dto.setEventId(event.getEventId());
