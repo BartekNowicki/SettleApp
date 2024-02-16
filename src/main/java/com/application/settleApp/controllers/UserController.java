@@ -22,6 +22,9 @@ public class UserController {
 
   @PostMapping
   public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+    if (userDTO.getUserId() != null) {
+      throw new IllegalArgumentException("Id is autoincremented and should not be provided");
+    }
     User createdUser = userService.save(userMapper.fromDTO(userDTO));
     return new ResponseEntity<>(userMapper.toDTO(createdUser), HttpStatus.CREATED);
   }

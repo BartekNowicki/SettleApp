@@ -22,6 +22,9 @@ public class EventController {
 
   @PostMapping
   public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) {
+    if (eventDTO.getEventId() != null) {
+      throw new IllegalArgumentException("Id is autoincremented and should not be provided");
+    }
     Event createdEvent = eventService.save(eventMapper.fromDTO(eventDTO));
     return new ResponseEntity<>(eventMapper.toDTO(createdEvent), HttpStatus.CREATED);
   }

@@ -1,5 +1,6 @@
 package com.application.settleApp.controllers;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -24,9 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class EventControllerIntegrationTest {
 
@@ -67,6 +70,18 @@ public class EventControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(eventDTO)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.status").value(Status.OPEN.toString()));
+  }
+
+  @Test
+  public void createEvent_WithId_ThrowsIllegalArgumentException() throws Exception {
+    EventDTO eventDTO = new EventDTO();
+    eventDTO.setEventId(1L);
+
+    mockMvc.perform(post("/events")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(eventDTO)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(containsString("Id is autoincremented and should not be provided.")));
   }
 
   @Test

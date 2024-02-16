@@ -22,8 +22,11 @@ public class CostController {
 
   @PostMapping
   public ResponseEntity<CostDTO> createCost(@RequestBody CostDTO costDTO) {
+    if (costDTO.getProductId() != null) {
+      throw new IllegalArgumentException("Id is autoincremented and should not be provided");
+    }
     if (costDTO.getUserId() == null || costDTO.getEventId() == null) {
-      throw new IllegalArgumentException("Both userId and eventId must be provided.");
+      throw new IllegalArgumentException("Both userId and eventId must be provided");
     }
     Cost createdCost =
         costService.save(costMapper.fromDTO(costDTO), costDTO.getUserId(), costDTO.getEventId());

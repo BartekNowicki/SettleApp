@@ -1,11 +1,13 @@
 package com.application.settleApp.controllers;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,9 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class CostControllerIntegrationTest {
 
@@ -63,6 +67,18 @@ public class CostControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(costDTO)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.name").value("Test Cost"));
+  }
+
+  @Test
+  public void createCost_WithId_ThrowsIllegalArgumentException() throws Exception {
+    CostDTO costDTO = new CostDTO();
+    costDTO.setProductId(1L);
+
+    mockMvc.perform(post("/costs")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(costDTO)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(containsString("Id is autoincremented and should not be provided")));
   }
 
   @Test

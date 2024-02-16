@@ -1,9 +1,11 @@
 package com.application.settleApp.controllers;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -18,9 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class UserControllerIntegrationTest {
 
@@ -47,6 +51,20 @@ public class UserControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(newUser)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.fname").value(newUser.getFname()));
+  }
+
+  @Test
+  public void createUser_WithId_ThrowsIllegalArgumentException() throws Exception {
+    UserDTO newUser = new UserDTO();
+    newUser.setUserId(1L);
+    newUser.setFname("New");
+    newUser.setLname("User");
+
+    mockMvc.perform(post("/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(newUser)))
+            .andExpect(status().isBadRequest()) // Expecting a BadRequest due to the illegal argument
+            .andExpect(content().string(containsString("Id is autoincremented and should not be provided")));
   }
 
   @Test
