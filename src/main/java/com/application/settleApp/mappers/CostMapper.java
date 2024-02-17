@@ -6,7 +6,7 @@ import com.application.settleApp.models.Event;
 import com.application.settleApp.models.User;
 import java.util.Optional;
 
-public class CostMapper {
+public class CostMapper implements Mapper<Cost, CostDTO> {
 
   public CostDTO toDTO(Cost cost) {
     CostDTO dto = new CostDTO();

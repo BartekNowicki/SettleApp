@@ -6,7 +6,7 @@ import com.application.settleApp.models.Event;
 import com.application.settleApp.models.User;
 import java.util.stream.Collectors;
 
-public class UserMapper {
+public class UserMapper implements Mapper<User, UserDTO> {
 
   public UserDTO toDTO(User user) {
     UserDTO dto = new UserDTO();

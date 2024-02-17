@@ -81,7 +81,7 @@ public class EventControllerIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(eventDTO)))
             .andExpect(status().isBadRequest())
-            .andExpect(content().string(containsString("Id is autoincremented and should not be provided.")));
+            .andExpect(content().string(containsString("Id is autoincremented and should not be provided")));
   }
 
   @Test
