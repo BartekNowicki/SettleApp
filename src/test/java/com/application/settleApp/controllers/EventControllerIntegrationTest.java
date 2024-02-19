@@ -11,8 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.application.settleApp.DTOs.EventDTO;
 import com.application.settleApp.enums.Status;
 import com.application.settleApp.mappers.EventMapper;
-import com.application.settleApp.models.Event;
-import com.application.settleApp.models.User;
+import com.application.settleApp.model.Event;
+import com.application.settleApp.model.User;
 import com.application.settleApp.repositories.EventRepository;
 import com.application.settleApp.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

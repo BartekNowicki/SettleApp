@@ -1,6 +1,6 @@
 package com.application.settleApp.services;
 
-import com.application.settleApp.models.Event;
+import com.application.settleApp.model.Event;
 
 public interface EventService extends CrudService<Event, Long> {
 

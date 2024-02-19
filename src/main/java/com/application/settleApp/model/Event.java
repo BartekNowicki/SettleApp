@@ -1,4 +1,4 @@
-package com.application.settleApp.models;
+package com.application.settleApp.model;
 
 import com.application.settleApp.enums.Status;
 import jakarta.persistence.Entity;

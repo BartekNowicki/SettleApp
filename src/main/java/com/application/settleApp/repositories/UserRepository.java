@@ -1,6 +1,6 @@
 package com.application.settleApp.repositories;
 
-import com.application.settleApp.models.User;
+import com.application.settleApp.model.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

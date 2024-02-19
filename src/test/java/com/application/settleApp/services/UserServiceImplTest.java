@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.application.settleApp.models.User;
+import com.application.settleApp.model.User;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;

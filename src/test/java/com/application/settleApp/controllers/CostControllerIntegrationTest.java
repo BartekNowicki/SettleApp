@@ -13,9 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.application.settleApp.DTOs.CostDTO;
 import com.application.settleApp.mappers.CostMapper;
-import com.application.settleApp.models.Cost;
-import com.application.settleApp.models.Event;
-import com.application.settleApp.models.User;
+import com.application.settleApp.model.Cost;
+import com.application.settleApp.model.Event;
+import com.application.settleApp.model.User;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.EventRepository;
 import com.application.settleApp.repositories.UserRepository;

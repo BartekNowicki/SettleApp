@@ -2,7 +2,7 @@ package com.application.settleApp.controllers;
 
 import com.application.settleApp.DTOs.UserDTO;
 import com.application.settleApp.mappers.UserMapper;
-import com.application.settleApp.models.User;
+import com.application.settleApp.model.User;
 import com.application.settleApp.services.UserServiceImpl;
 import java.util.List;
 import java.util.Objects;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/users")
 public class UserController {
 

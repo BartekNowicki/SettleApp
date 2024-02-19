@@ -1,8 +1,8 @@
 package com.application.settleApp.services;
 
-import com.application.settleApp.models.Cost;
-import com.application.settleApp.models.Event;
-import com.application.settleApp.models.User;
+import com.application.settleApp.model.Cost;
+import com.application.settleApp.model.Event;
+import com.application.settleApp.model.User;
 import com.application.settleApp.repositories.EventRepository;
 import com.application.settleApp.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;

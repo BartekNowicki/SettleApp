@@ -1,9 +1,9 @@
 package com.application.settleApp.mappers;
 
 import com.application.settleApp.DTOs.EventDTO;
-import com.application.settleApp.models.Cost;
-import com.application.settleApp.models.Event;
-import com.application.settleApp.models.User;
+import com.application.settleApp.model.Cost;
+import com.application.settleApp.model.Event;
+import com.application.settleApp.model.User;
 import jakarta.transaction.Transactional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.application.settleApp.services;
 
-import com.application.settleApp.models.User;
+import com.application.settleApp.model.User;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
