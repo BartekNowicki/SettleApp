@@ -23,4 +23,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(AuthenticationFailedException.class)
+  public ResponseEntity<Object> handleAuthenticationFailed(AuthenticationFailedException ex) {
+    ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
+  }
 }

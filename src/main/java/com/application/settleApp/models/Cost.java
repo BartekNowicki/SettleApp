@@ -1,4 +1,4 @@
-package com.application.settleApp.model;
+package com.application.settleApp.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

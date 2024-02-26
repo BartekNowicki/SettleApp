@@ -9,12 +9,15 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.application.settleApp.DTOs.EventDTO;
-import com.application.settleApp.enums.Status;
+import com.application.settleApp.enums.StatusType;
 import com.application.settleApp.mappers.EventMapper;
-import com.application.settleApp.model.Event;
-import com.application.settleApp.model.User;
+import com.application.settleApp.models.Event;
+import com.application.settleApp.models.Role;
+import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.EventRepository;
 import com.application.settleApp.repositories.UserRepository;
+import com.application.settleApp.security.AuthRequest;
+import com.application.settleApp.services.JwtTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -24,7 +27,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -37,39 +42,74 @@ public class EventControllerIntegrationTest {
   @Autowired private UserRepository userRepository;
   @Autowired private EventRepository eventRepository;
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private JwtTokenService jwtTokenService;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   private Event testEvent1;
   private Event testEvent2;
+  private String userToken;
 
   @BeforeEach
   public void setup() {
     eventRepository.deleteAll();
     userRepository.deleteAll();
 
+    //this is needed because of foreign key costraints
+    String insertRoleSql =
+            "INSERT INTO role (role_id, name)\n"
+                    + "SELECT 1, 'USER'\n"
+                    + "WHERE NOT EXISTS (\n"
+                    + "  SELECT 1 FROM role WHERE role_id = 1\n"
+                    + ");";
+    jdbcTemplate.update(insertRoleSql);
+
     testEvent1 = new Event();
     testEvent1.setEventDate(LocalDate.of(2024, 1, 4));
-    testEvent1.setStatus(Status.OPEN);
+    testEvent1.setStatus(StatusType.OPEN);
     testEvent1 = eventRepository.save(testEvent1);
 
     testEvent2 = new Event();
     testEvent2.setEventDate(LocalDate.of(2024, 2, 4));
-    testEvent2.setStatus(Status.OPEN);
+    testEvent2.setStatus(StatusType.OPEN);
     testEvent2 = eventRepository.save(testEvent2);
+
+    User userMakingRequests = new User();
+    userMakingRequests.setEmail("userMakingRequests@example.com");
+    String passwordNotHashed = "hashed_password1";
+    String passwordHashedStoredInDb =
+        "$2b$12$iU/7c.jaS5Ze57mBdxXMUuGrkhjOzeZ3ZZVF6mA6nZMAdUv57jnuK";
+    userMakingRequests.setPassword(passwordHashedStoredInDb);
+    Role userMakingRequestsRole = new Role();
+    userMakingRequestsRole.setRoleId(1L);
+    userMakingRequestsRole.setName("USER");
+    userMakingRequests.getRoles().add(userMakingRequestsRole);
+    userRepository.save(userMakingRequests);
+    userToken =
+        "Bearer "
+            + jwtTokenService.generateToken(
+                new AuthRequest(userMakingRequests.getEmail(), passwordNotHashed));
+  }
+
+  private HttpHeaders getAuthorizationHeaders() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", userToken);
+    return headers;
   }
 
   @Test
   @Transactional
   public void createEventTest_Success() throws Exception {
     EventDTO eventDTO = new EventDTO();
-    eventDTO.setStatus(Status.OPEN);
+    eventDTO.setStatusType(StatusType.OPEN);
 
     mockMvc
         .perform(
             post("/events")
+                .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(eventDTO)))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.status").value(Status.OPEN.toString()));
+        .andExpect(jsonPath("$.statusType").value(StatusType.OPEN.toString()));
   }
 
   @Test
@@ -77,17 +117,24 @@ public class EventControllerIntegrationTest {
     EventDTO eventDTO = new EventDTO();
     eventDTO.setEventId(1L);
 
-    mockMvc.perform(post("/events")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(eventDTO)))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string(containsString("Id is autoincremented and should not be provided")));
+    mockMvc
+        .perform(
+            post("/events")
+                .headers(getAuthorizationHeaders())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(eventDTO)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            content().string(containsString("Id is autoincremented and should not be provided")));
   }
 
   @Test
   @Transactional
   public void getAllEvents_Success() throws Exception {
-    mockMvc.perform(get("/events")).andExpect(status().isOk()).andExpect(jsonPath("$").isArray());
+    mockMvc
+        .perform(get("/events").headers(getAuthorizationHeaders()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isArray());
   }
 
   @Test
@@ -97,20 +144,21 @@ public class EventControllerIntegrationTest {
     newUser = userRepository.save(newUser);
 
     Event newEvent = new Event();
-    newEvent.setStatus(Status.OPEN);
+    newEvent.setStatus(StatusType.OPEN);
     newEvent = eventRepository.save(newEvent);
 
     EventDTO eventDTO = new EventMapper().toDTO(newEvent);
-    eventDTO.setStatus(Status.CLOSED);
+    eventDTO.setStatusType(StatusType.CLOSED);
     eventDTO.setParticipantIds(Set.of(newUser.getUserId()));
 
     mockMvc
         .perform(
             patch("/events/" + newEvent.getEventId())
+                .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(eventDTO)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.status").value(Status.CLOSED.toString()));
+        .andExpect(jsonPath("$.statusType").value(StatusType.CLOSED.toString()));
 
     Event updatedEvent = eventRepository.findById(newEvent.getEventId()).orElseThrow();
     User updatedUser = userRepository.findById(newUser.getUserId()).orElseThrow();
@@ -124,11 +172,15 @@ public class EventControllerIntegrationTest {
   @Transactional
   public void deleteEventTest_Success() throws Exception {
     Event newEvent = new Event();
-    newEvent.setStatus(Status.OPEN);
+    newEvent.setStatus(StatusType.OPEN);
     newEvent = eventRepository.save(newEvent);
 
-    mockMvc.perform(delete("/events/" + newEvent.getEventId())).andExpect(status().isOk());
+    mockMvc
+        .perform(delete("/events/" + newEvent.getEventId()).headers(getAuthorizationHeaders()))
+        .andExpect(status().isOk());
 
-    mockMvc.perform(get("/events/" + newEvent.getEventId())).andExpect(status().isNotFound());
+    mockMvc
+        .perform(get("/events/" + newEvent.getEventId()).headers(getAuthorizationHeaders()))
+        .andExpect(status().isNotFound());
   }
 }

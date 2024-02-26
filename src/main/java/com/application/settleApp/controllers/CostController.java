@@ -2,7 +2,7 @@ package com.application.settleApp.controllers;
 
 import com.application.settleApp.DTOs.CostDTO;
 import com.application.settleApp.mappers.CostMapper;
-import com.application.settleApp.model.Cost;
+import com.application.settleApp.models.Cost;
 import com.application.settleApp.services.CostServiceImpl;
 import java.util.List;
 import java.util.Objects;

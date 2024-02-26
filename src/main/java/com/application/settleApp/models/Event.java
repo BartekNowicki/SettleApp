@@ -1,6 +1,6 @@
-package com.application.settleApp.model;
+package com.application.settleApp.models;
 
-import com.application.settleApp.enums.Status;
+import com.application.settleApp.enums.StatusType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -32,7 +32,7 @@ public class Event {
   private Long eventId;
 
   @Enumerated(EnumType.STRING)
-  private Status status;
+  private StatusType status;
 
   private LocalDate eventDate;
   private Long createdByUserId;

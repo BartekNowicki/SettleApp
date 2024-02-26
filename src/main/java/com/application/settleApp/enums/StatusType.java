@@ -1,6 +1,6 @@
 package com.application.settleApp.enums;
 
-public enum Status {
+public enum StatusType {
   OPEN,
   CLOSED
 }

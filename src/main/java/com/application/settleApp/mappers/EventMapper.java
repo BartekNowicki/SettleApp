@@ -1,9 +1,9 @@
 package com.application.settleApp.mappers;
 
 import com.application.settleApp.DTOs.EventDTO;
-import com.application.settleApp.model.Cost;
-import com.application.settleApp.model.Event;
-import com.application.settleApp.model.User;
+import com.application.settleApp.models.Cost;
+import com.application.settleApp.models.Event;
+import com.application.settleApp.models.User;
 import jakarta.transaction.Transactional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ public class EventMapper implements Mapper<Event, EventDTO> {
   public EventDTO toDTO(Event event) {
     EventDTO dto = new EventDTO();
     dto.setEventId(event.getEventId());
-    dto.setStatus(event.getStatus());
+    dto.setStatusType(event.getStatus());
     dto.setEventDate(event.getEventDate());
     dto.setCreatedByUserId(event.getCreatedByUserId());
     dto.setParticipantIds(
@@ -29,7 +29,7 @@ public class EventMapper implements Mapper<Event, EventDTO> {
   public Event fromDTO(EventDTO dto) {
     Event event = new Event();
     event.setEventId(dto.getEventId());
-    event.setStatus(dto.getStatus());
+    event.setStatus(dto.getStatusType());
     event.setEventDate(dto.getEventDate());
     event.setCreatedByUserId(dto.getCreatedByUserId());
 

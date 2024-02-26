@@ -2,7 +2,7 @@ package com.application.settleApp.controllers;
 
 import com.application.settleApp.DTOs.EventDTO;
 import com.application.settleApp.mappers.EventMapper;
-import com.application.settleApp.model.Event;
+import com.application.settleApp.models.Event;
 import com.application.settleApp.services.EventServiceImpl;
 import java.util.List;
 import java.util.Objects;

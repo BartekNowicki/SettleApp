@@ -13,12 +13,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.application.settleApp.DTOs.CostDTO;
 import com.application.settleApp.mappers.CostMapper;
-import com.application.settleApp.model.Cost;
-import com.application.settleApp.model.Event;
-import com.application.settleApp.model.User;
+import com.application.settleApp.models.Cost;
+import com.application.settleApp.models.Event;
+import com.application.settleApp.models.Role;
+import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.EventRepository;
 import com.application.settleApp.repositories.UserRepository;
+import com.application.settleApp.security.AuthRequest;
+import com.application.settleApp.services.JwtTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -40,16 +45,50 @@ public class CostControllerIntegrationTest {
   @Autowired private EventRepository eventRepository;
   @Autowired private CostRepository costRepository;
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private JwtTokenService jwtTokenService;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   private User testUser1;
   private User testUser2;
   private Event testEvent;
+  private String userToken;
 
   @BeforeEach
   public void setup() {
+    // this is needed because of foreign key costraints
+    String insertRoleSql =
+        "INSERT INTO role (role_id, name)\n"
+            + "SELECT 1, 'USER'\n"
+            + "WHERE NOT EXISTS (\n"
+            + "  SELECT 1 FROM role WHERE role_id = 1\n"
+            + ");";
+    jdbcTemplate.update(insertRoleSql);
+    userRepository.deleteAll();
     testUser1 = userRepository.save(new User());
     testUser2 = userRepository.save(new User());
     testEvent = eventRepository.save(new Event());
+
+    User userMakingRequests = new User();
+    userMakingRequests.setEmail("userMakingRequests@example.com");
+    String passwordNotHashed = "hashed_password1";
+    String passwordHashedStoredInDb =
+        "$2b$12$iU/7c.jaS5Ze57mBdxXMUuGrkhjOzeZ3ZZVF6mA6nZMAdUv57jnuK";
+    userMakingRequests.setPassword(passwordHashedStoredInDb);
+    Role userMakingRequestsRole = new Role();
+    userMakingRequestsRole.setRoleId(1L);
+    userMakingRequestsRole.setName("USER");
+    userMakingRequests.getRoles().add(userMakingRequestsRole);
+    userRepository.save(userMakingRequests);
+    userToken =
+        "Bearer "
+            + jwtTokenService.generateToken(
+                new AuthRequest(userMakingRequests.getEmail(), passwordNotHashed));
+  }
+
+  private HttpHeaders getAuthorizationHeaders() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", userToken);
+    return headers;
   }
 
   @Test
@@ -63,6 +102,7 @@ public class CostControllerIntegrationTest {
     mockMvc
         .perform(
             post("/costs")
+                .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(costDTO)))
         .andExpect(status().isCreated())
@@ -74,11 +114,15 @@ public class CostControllerIntegrationTest {
     CostDTO costDTO = new CostDTO();
     costDTO.setProductId(1L);
 
-    mockMvc.perform(post("/costs")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(costDTO)))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string(containsString("Id is autoincremented and should not be provided")));
+    mockMvc
+        .perform(
+            post("/costs")
+                .headers(getAuthorizationHeaders())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(costDTO)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            content().string(containsString("Id is autoincremented and should not be provided")));
   }
 
   @Test
@@ -89,6 +133,7 @@ public class CostControllerIntegrationTest {
     mockMvc
         .perform(
             post("/costs")
+                .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(costDTO)))
         .andExpect(status().isBadRequest());
@@ -106,6 +151,7 @@ public class CostControllerIntegrationTest {
     mockMvc
         .perform(
             patch("/costs/" + savedCost.getProductId())
+                .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedCostDTO)))
         .andExpect(status().isOk())
@@ -117,7 +163,9 @@ public class CostControllerIntegrationTest {
   public void deleteCost_ThatDoesNotExist_ThrowsNotFound() throws Exception {
     long nonExistentCostId = -1L;
 
-    mockMvc.perform(delete("/costs/" + nonExistentCostId)).andExpect(status().isNotFound());
+    mockMvc
+        .perform(delete("/costs/" + nonExistentCostId).headers(getAuthorizationHeaders()))
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -125,7 +173,9 @@ public class CostControllerIntegrationTest {
   public void deleteCostAndVerifyItIsRemoved() throws Exception {
     Cost savedCost = costRepository.save(new Cost());
 
-    mockMvc.perform(delete("/costs/" + savedCost.getProductId())).andExpect(status().isOk());
+    mockMvc
+        .perform(delete("/costs/" + savedCost.getProductId()).headers(getAuthorizationHeaders()))
+        .andExpect(status().isOk());
 
     assertFalse(costRepository.existsById(savedCost.getProductId()));
   }
@@ -143,6 +193,7 @@ public class CostControllerIntegrationTest {
     mockMvc
         .perform(
             patch("/costs/" + savedCost.getProductId())
+                .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(costDTO)))
         .andExpect(status().isOk());
@@ -180,6 +231,7 @@ public class CostControllerIntegrationTest {
     mockMvc
         .perform(
             patch("/costs/" + initialCost.getProductId())
+                .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updatedCostJson))
         .andExpect(status().isOk())

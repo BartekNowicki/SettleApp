@@ -1,6 +1,6 @@
 package com.application.settleApp.services;
 
-import com.application.settleApp.model.Cost;
+import com.application.settleApp.models.Cost;
 
 public interface CostService extends CrudService<Cost, Long> {
 

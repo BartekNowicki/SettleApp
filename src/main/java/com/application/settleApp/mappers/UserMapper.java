@@ -1,9 +1,9 @@
 package com.application.settleApp.mappers;
 
 import com.application.settleApp.DTOs.UserDTO;
-import com.application.settleApp.model.Cost;
-import com.application.settleApp.model.Event;
-import com.application.settleApp.model.User;
+import com.application.settleApp.models.Cost;
+import com.application.settleApp.models.Event;
+import com.application.settleApp.models.User;
 import java.util.stream.Collectors;
 
 public class UserMapper implements Mapper<User, UserDTO> {

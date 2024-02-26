@@ -6,13 +6,24 @@ import com.application.settleApp.mappers.UserMapper;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.EventRepository;
 import com.application.settleApp.repositories.UserRepository;
+import com.application.settleApp.security.JwtTokenFilter;
 import com.application.settleApp.services.CostServiceImpl;
 import com.application.settleApp.services.EventServiceImpl;
+import com.application.settleApp.services.JwtTokenService;
 import com.application.settleApp.services.UserServiceImpl;
+import io.jsonwebtoken.security.Keys;
+import java.util.Base64;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -23,9 +34,18 @@ public class settleAppConfig {
   @Autowired private UserRepository userRepository;
   @Autowired private CostRepository costRepository;
 
+  @Value("${jwt.secret}")
+  private String secretKey;
+
   // Injecting the CORS allowed origins from the application.properties file
   @Value("${cors.allowedOrigins}")
   private String allowedOrigins;
+
+  @Bean
+  public SecretKey jwtSecretKeyDecoded() {
+    byte[] decodedKey = Base64.getDecoder().decode(secretKey.getBytes());
+    return Keys.hmacShaKeyFor(decodedKey);
+  }
 
   @Bean
   public EventMapper eventMapper() {
@@ -58,6 +78,11 @@ public class settleAppConfig {
   }
 
   @Bean
+  public JwtTokenService jwtTokenService() {
+    return new JwtTokenService(userRepository, passwordEncoder(), secretKey);
+  }
+
+  @Bean
   public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurer() {
       @Override
@@ -68,5 +93,28 @@ public class settleAppConfig {
             .allowedMethods("GET", "POST", "PUT", "DELETE");
       }
     };
+  }
+
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf(csrf -> csrf.disable())
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            requests ->
+                requests.requestMatchers("/authenticate").permitAll().anyRequest().authenticated())
+        .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+  }
+
+  @Bean
+  public JwtTokenFilter jwtTokenFilter() {
+    return new JwtTokenFilter();
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
   }
 }

@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS role
+(
+    role_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name    VARCHAR(50) NOT NULL
+);
+
+
+INSERT INTO role (name)
+VALUES ('ADMIN'),
+       ('USER');

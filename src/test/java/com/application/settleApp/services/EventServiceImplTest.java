@@ -5,9 +5,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.application.settleApp.model.Cost;
-import com.application.settleApp.model.Event;
-import com.application.settleApp.model.User;
+import com.application.settleApp.models.Cost;
+import com.application.settleApp.models.Event;
+import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;

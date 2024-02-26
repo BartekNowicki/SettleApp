@@ -1,6 +1,6 @@
 package com.application.settleApp.DTOs;
 
-import com.application.settleApp.enums.Status;
+import com.application.settleApp.enums.StatusType;
 import java.time.LocalDate;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 public class EventDTO {
   private Long eventId;
-  private Status status;
+  private StatusType statusType;
   private LocalDate eventDate;
   private Long createdByUserId;
   private Set<Long> participantIds;

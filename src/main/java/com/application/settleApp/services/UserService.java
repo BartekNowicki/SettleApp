@@ -1,6 +1,6 @@
 package com.application.settleApp.services;
 
-import com.application.settleApp.model.User;
+import com.application.settleApp.models.User;
 
 public interface UserService extends CrudService<User, Long> {
 
