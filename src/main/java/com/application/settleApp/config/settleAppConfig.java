@@ -10,8 +10,11 @@ import com.application.settleApp.services.CostServiceImpl;
 import com.application.settleApp.services.EventServiceImpl;
 import com.application.settleApp.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class settleAppConfig {
@@ -19,6 +22,10 @@ public class settleAppConfig {
   @Autowired private EventRepository eventRepository;
   @Autowired private UserRepository userRepository;
   @Autowired private CostRepository costRepository;
+
+  // Injecting the CORS allowed origins from the application.properties file
+  @Value("${cors.allowedOrigins}")
+  private String allowedOrigins;
 
   @Bean
   public EventMapper eventMapper() {
@@ -48,5 +55,18 @@ public class settleAppConfig {
   @Bean
   public EventServiceImpl eventService() {
     return new EventServiceImpl(eventRepository, userRepository, userService(), costService());
+  }
+
+  @Bean
+  public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurer() {
+      @Override
+      public void addCorsMappings(CorsRegistry registry) {
+        registry
+            .addMapping("/**")
+            .allowedOrigins(allowedOrigins)
+            .allowedMethods("GET", "POST", "PUT", "DELETE");
+      }
+    };
   }
 }
