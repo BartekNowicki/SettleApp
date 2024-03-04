@@ -102,7 +102,12 @@ public class settleAppConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             requests ->
-                requests.requestMatchers("/authenticate").permitAll().anyRequest().authenticated())
+                requests
+                    .requestMatchers(
+                        "/authenticate", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
