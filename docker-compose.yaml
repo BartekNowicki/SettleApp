@@ -1,18 +1,53 @@
+#app in Docker + db in docker
+#the app needs to be jarafied into the target directory: execute mvn clean install
+
+#services:
+#  app:
+#    build: .
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "-umyuser", "-psecret", "ping", "-h", "db" ]
+#      interval: 10s
+#      retries: 10
+#      timeout: 30s
+#  db:
+#    image: mysql:8.0
+#    environment:
+#      MYSQL_DATABASE: 'mydatabase'
+#      MYSQL_USER: 'myuser'
+#      MYSQL_PASSWORD: 'secret'
+#      MYSQL_ROOT_PASSWORD: 'verysecret'
+#    ports:
+#      - "3306:3306"
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "-umyuser", "-psecret", "ping", "-h", "localhost" ]
+#      interval: 10s
+#      retries: 10
+#      timeout: 30s
+
+#----------------------------------------------------------------------------------------------------------------------
+#only db in Docker:
 services:
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "-umyuser", "-psecret", "ping", "-h", "db" ]
-      interval: 10s
-      retries: 10
-      timeout: 30s
+#  app:
+#    build: .
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "-umyuser", "-psecret", "ping", "-h", "db" ]
+#      interval: 10s
+#      retries: 10
+#      timeout: 30s
   db:
     image: mysql:8.0
     environment:
