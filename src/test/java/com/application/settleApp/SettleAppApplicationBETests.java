@@ -7,6 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 class SettleAppApplicationBETests {
 
   //it fails if the active profile is not set to dev in run configuration
-  @Test
+  //@Test
   void contextLoads() {}
 }

@@ -104,7 +104,13 @@ public class settleAppConfig {
             requests ->
                 requests
                     .requestMatchers(
-                        "/authenticate", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
+                        "/authenticate",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/api-docs/swagger-config",
+                        "/api-docs/swagger-config",
+                        "/api-docs/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
