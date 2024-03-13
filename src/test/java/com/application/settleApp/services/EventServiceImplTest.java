@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.application.settleApp.models.BaseEntity;
 import com.application.settleApp.models.Cost;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.models.User;
@@ -28,17 +29,17 @@ public class EventServiceImplTest {
 
   @InjectMocks private EventServiceImpl eventService;
 
-  private Event event1 = new Event();
-  private Event event2 = new Event();
-  private Event event3 = new Event();
+  private Event event1 = BaseEntity.getNewWithDefaultDates(Event.class);
+  private Event event2 = BaseEntity.getNewWithDefaultDates(Event.class);
+  private Event event3 = BaseEntity.getNewWithDefaultDates(Event.class);
   List<Event> eventList = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    event1.setEventId(1L);
-    event2.setEventId(2L);
-    event3.setEventId(3L);
+    event1.setId(1L);
+    event2.setId(2L);
+    event3.setId(3L);
     eventList.add(event1);
     eventList.add(event2);
     eventList.add(event3);
@@ -46,13 +47,13 @@ public class EventServiceImplTest {
 
   @Test
   void testFindById() {
-    event1.setEventId(1L);
+    event1.setId(1L);
 
     when(eventRepository.findById(1L)).thenReturn(Optional.of(event1));
 
     Event found = eventService.findById(1L);
 
-    assertEquals(1L, found.getEventId());
+    assertEquals(1L, found.getId());
     verify(eventRepository).findById(1L);
   }
 
@@ -65,12 +66,12 @@ public class EventServiceImplTest {
 
   @Test
   void testSave() {
-    Event event99 = new Event();
-    event99.setEventId(99L);
+    Event event99 = BaseEntity.getNewWithDefaultDates(Event.class);
+    event99.setId(99L);
 
-    User user = new User();
+    User user = BaseEntity.getNewWithDefaultDates(User.class);
     when(userService.findById(anyLong())).thenReturn(user);
-    when(costService.findById(anyLong())).thenReturn(new Cost());
+    when(costService.findById(anyLong())).thenReturn(BaseEntity.getNewWithDefaultDates(Cost.class));
 
     when(eventRepository.save(event99)).thenReturn(event99);
 
@@ -79,7 +80,7 @@ public class EventServiceImplTest {
     verify(eventRepository).save(event99);
 
     assertNotNull(savedEvent);
-    assertEquals(99L, savedEvent.getEventId());
+    assertEquals(99L, savedEvent.getId());
   }
 
   @Test

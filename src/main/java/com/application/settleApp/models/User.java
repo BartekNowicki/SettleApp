@@ -24,10 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "user_table")
-public class User {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long userId;
+public class User extends BaseEntity {
 
   private String fname;
   private String lname;
@@ -63,11 +60,11 @@ public class User {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     User user = (User) o;
-    return Objects.equals(userId, user.userId);
+    return Objects.equals(super.getId(), user.getId());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(userId);
+    return Objects.hash(super.getId());
   }
 }

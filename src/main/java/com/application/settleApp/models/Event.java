@@ -26,10 +26,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Event {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long eventId;
+public class Event extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   private StatusType status;
@@ -59,11 +56,11 @@ public class Event {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Event event = (Event) o;
-    return Objects.equals(eventId, event.eventId);
+    return Objects.equals(super.getId(), event.getId());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(eventId);
+    return Objects.hash(super.getId());
   }
 }

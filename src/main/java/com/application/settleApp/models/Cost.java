@@ -1,9 +1,6 @@
 package com.application.settleApp.models;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.util.Objects;
@@ -17,10 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Cost {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long productId;
+public class Cost extends BaseEntity {
 
   private String name;
   private Integer quantity;
@@ -43,11 +37,11 @@ public class Cost {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Cost cost = (Cost) o;
-    return Objects.equals(productId, cost.productId);
+    return Objects.equals(super.getId(), cost.getId());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(productId);
+    return Objects.hash(super.getId());
   }
 }

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.application.settleApp.controllers.AuthenticationController;
 import com.application.settleApp.exceptions.AuthenticationFailedException;
+import com.application.settleApp.models.BaseEntity;
 import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.UserRepository;
 import com.application.settleApp.security.AuthRequest;
@@ -38,7 +39,7 @@ public class JwtTokenServiceTest {
 
   @BeforeEach
   void setUp() {
-    user = new User();
+    user = BaseEntity.getNewWithDefaultDates(User.class);
     user.setEmail("user@example.com");
     user.setPassword(hashedPassword);
 
@@ -58,7 +59,7 @@ public class JwtTokenServiceTest {
   @Test
   void authenticateFailureDueToPasswordMismatch() {
     // Prepare the user with the hashed password
-    User user = new User();
+    User user = BaseEntity.getNewWithDefaultDates(User.class);
     user.setEmail("user@example.com");
     user.setPassword(hashedPassword);
 

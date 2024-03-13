@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.application.settleApp.DTOs.CostDTO;
 import com.application.settleApp.mappers.CostMapper;
+import com.application.settleApp.models.BaseEntity;
 import com.application.settleApp.models.Cost;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.models.Role;
@@ -53,6 +54,7 @@ public class CostControllerIntegrationTest {
   private Event testEvent;
   private String userToken;
 
+
   @BeforeEach
   public void setup() {
     // this is needed because of foreign key costraints
@@ -64,11 +66,13 @@ public class CostControllerIntegrationTest {
             + ");";
     jdbcTemplate.update(insertRoleSql);
     userRepository.deleteAll();
-    testUser1 = userRepository.save(new User());
-    testUser2 = userRepository.save(new User());
-    testEvent = eventRepository.save(new Event());
 
-    User userMakingRequests = new User();
+
+    testUser1 = userRepository.save(BaseEntity.getNewWithDefaultDates(User.class));
+    testUser2 = userRepository.save(BaseEntity.getNewWithDefaultDates(User.class));
+    testEvent = eventRepository.save(BaseEntity.getNewWithDefaultDates(Event.class));
+
+    User userMakingRequests = BaseEntity.getNewWithDefaultDates(User.class);
     userMakingRequests.setEmail("userMakingRequests@example.com");
     String passwordNotHashed = "hashed_password1";
     String passwordHashedStoredInDb =
@@ -96,8 +100,8 @@ public class CostControllerIntegrationTest {
   public void createCost_Success() throws Exception {
     CostDTO costDTO = new CostDTO();
     costDTO.setName("Test Cost");
-    costDTO.setUserId(testUser1.getUserId());
-    costDTO.setEventId(testEvent.getEventId());
+    costDTO.setUserId(testUser1.getId());
+    costDTO.setEventId(testEvent.getId());
 
     mockMvc
         .perform(
@@ -142,20 +146,20 @@ public class CostControllerIntegrationTest {
   @Test
   @Transactional
   public void patchCost_ReassignToDifferentUser() throws Exception {
-    Cost savedCost = costRepository.save(new Cost());
+    Cost savedCost = costRepository.save(BaseEntity.getNewWithDefaultDates(Cost.class));
 
     CostDTO updatedCostDTO = new CostMapper().toDTO(savedCost);
-    updatedCostDTO.setUserId(testUser2.getUserId());
-    updatedCostDTO.setEventId(testEvent.getEventId());
+    updatedCostDTO.setUserId(testUser2.getId());
+    updatedCostDTO.setEventId(testEvent.getId());
 
     mockMvc
         .perform(
-            patch("/costs/" + savedCost.getProductId())
+            patch("/costs/" + savedCost.getId())
                 .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedCostDTO)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.userId").value(testUser2.getUserId()));
+        .andExpect(jsonPath("$.userId").value(testUser2.getId()));
   }
 
   @Test
@@ -171,79 +175,79 @@ public class CostControllerIntegrationTest {
   @Test
   @Transactional
   public void deleteCostAndVerifyItIsRemoved() throws Exception {
-    Cost savedCost = costRepository.save(new Cost());
+    Cost savedCost = costRepository.save(BaseEntity.getNewWithDefaultDates(Cost.class));
 
     mockMvc
-        .perform(delete("/costs/" + savedCost.getProductId()).headers(getAuthorizationHeaders()))
+        .perform(delete("/costs/" + savedCost.getId()).headers(getAuthorizationHeaders()))
         .andExpect(status().isOk());
 
-    assertFalse(costRepository.existsById(savedCost.getProductId()));
+    assertFalse(costRepository.existsById(savedCost.getId()));
   }
 
   @Test
   @Transactional
   public void updateCostWithUserAndVerifyAssociation() throws Exception {
-    Cost newCost = new Cost();
+    Cost newCost = BaseEntity.getNewWithDefaultDates(Cost.class);
     newCost.setUser(testUser2);
     Cost savedCost = costRepository.save(newCost);
 
     CostDTO costDTO = new CostMapper().toDTO(savedCost);
-    costDTO.setEventId(testEvent.getEventId());
+    costDTO.setEventId(testEvent.getId());
 
     mockMvc
         .perform(
-            patch("/costs/" + savedCost.getProductId())
+            patch("/costs/" + savedCost.getId())
                 .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(costDTO)))
         .andExpect(status().isOk());
 
-    assertTrue(costRepository.findById(savedCost.getProductId()).isPresent());
-    Cost updatedCost = costRepository.findById(savedCost.getProductId()).get();
-    assertEquals(testUser2.getUserId(), updatedCost.getUser().getUserId());
+    assertTrue(costRepository.findById(savedCost.getId()).isPresent());
+    Cost updatedCost = costRepository.findById(savedCost.getId()).get();
+    assertEquals(testUser2.getId(), updatedCost.getUser().getId());
   }
 
   @Test
   @Transactional
   public void patchCost_ReassignToDifferentUser_AndVerifyAssociations() throws Exception {
-    User initialUser = new User();
+    User initialUser = BaseEntity.getNewWithDefaultDates(User.class);
     initialUser.setFname("Initial User");
     initialUser = userRepository.save(initialUser);
 
-    Event initialEvent = new Event();
+    Event initialEvent = BaseEntity.getNewWithDefaultDates(Event.class);
     initialEvent = eventRepository.save(initialEvent);
 
-    Cost initialCost = new Cost();
+    Cost initialCost = BaseEntity.getNewWithDefaultDates(Cost.class);
     initialCost.setUser(initialUser);
     initialCost.setEvent(initialEvent);
     initialCost = costRepository.save(initialCost);
 
     CostDTO costDTO = new CostMapper().toDTO(initialCost);
 
-    User newUser = new User();
+    User newUser = BaseEntity.getNewWithDefaultDates(User.class);
     newUser.setFname("New User");
     newUser = userRepository.save(newUser);
 
-    costDTO.setUserId(newUser.getUserId());
+    costDTO.setUserId(newUser.getId());
 
     String updatedCostJson = objectMapper.writeValueAsString(costDTO);
 
     mockMvc
         .perform(
-            patch("/costs/" + initialCost.getProductId())
+            patch("/costs/" + initialCost.getId())
                 .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updatedCostJson))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.userId").value(newUser.getUserId()));
+        .andExpect(jsonPath("$.userId").value(newUser.getId()));
 
-    User updatedUser = userRepository.findById(newUser.getUserId()).orElseThrow();
-    Event updatedEvent = eventRepository.findById(initialEvent.getEventId()).orElseThrow();
-    Cost updatedCost = costRepository.findById(initialCost.getProductId()).orElseThrow();
+    User updatedUser = userRepository.findById(newUser.getId()).orElseThrow();
+    Event updatedEvent = eventRepository.findById(initialEvent.getId()).orElseThrow();
+    Cost updatedCost = costRepository.findById(initialCost.getId()).orElseThrow();
 
     assertEquals(
-        updatedUser.getUserId(),
-        updatedCost.getUser().getUserId(),
+        updatedUser.getId(),
+        updatedCost.getUser().getId(),
         "Cost is not reassigned to the new user");
     assertTrue(
         updatedEvent.getCosts().contains(updatedCost), "Event does not contain the updated cost");

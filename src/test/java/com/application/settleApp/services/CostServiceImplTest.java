@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.application.settleApp.models.BaseEntity;
 import com.application.settleApp.models.Cost;
 import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.CostRepository;
@@ -31,17 +32,17 @@ public class CostServiceImplTest {
 
   @InjectMocks private CostServiceImpl costService;
 
-  private Cost cost1 = new Cost();
-  private Cost cost2 = new Cost();
-  private Cost cost3 = new Cost();
+  private Cost cost1 = BaseEntity.getNewWithDefaultDates(Cost.class);
+  private Cost cost2 = BaseEntity.getNewWithDefaultDates(Cost.class);
+  private Cost cost3 = BaseEntity.getNewWithDefaultDates(Cost.class);
   List<Cost> costList = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    cost1.setProductId(1L);
-    cost2.setProductId(2L);
-    cost3.setProductId(3L);
+    cost1.setId(1L);
+    cost2.setId(2L);
+    cost3.setId(3L);
     costList.add(cost1);
     costList.add(cost2);
     costList.add(cost3);
@@ -49,13 +50,13 @@ public class CostServiceImplTest {
 
   @Test
   void testFindById() {
-    cost1.setProductId(1L);
+    cost1.setId(1L);
 
     when(costRepository.findById(1L)).thenReturn(Optional.of(cost1));
 
     Cost found = costService.findById(1L);
 
-    assertEquals(1L, found.getProductId());
+    assertEquals(1L, found.getId());
     verify(costRepository).findById(1L);
   }
 
@@ -68,10 +69,10 @@ public class CostServiceImplTest {
 
   @Test
   void testSave() {
-    Cost cost99 = new Cost();
-    cost99.setProductId(99L);
+    Cost cost99 = BaseEntity.getNewWithDefaultDates(Cost.class);
+    cost99.setId(99L);
 
-    User user = new User();
+    User user = BaseEntity.getNewWithDefaultDates(User.class);
     when(userService.findById(anyLong())).thenReturn(user);
 
     when(costRepository.save(cost99)).thenReturn(cost99);
@@ -81,7 +82,7 @@ public class CostServiceImplTest {
     verify(costRepository).save(cost99);
 
     assertNotNull(savedCost);
-    assertEquals(99L, savedCost.getProductId());
+    assertEquals(99L, savedCost.getId());
   }
 
   @Test

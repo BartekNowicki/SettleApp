@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.application.settleApp.models.BaseEntity;
 import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.UserRepository;
@@ -24,17 +25,17 @@ public class UserServiceImplTest {
 
   @InjectMocks private UserServiceImpl userService;
 
-  private User user1 = new User();
-  private User user2 = new User();
-  private User user3 = new User();
+  private User user1 = BaseEntity.getNewWithDefaultDates(User.class);
+  private User user2 = BaseEntity.getNewWithDefaultDates(User.class);
+  private User user3 = BaseEntity.getNewWithDefaultDates(User.class);
   List<User> userList = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    user1.setUserId(1L);
-    user2.setUserId(2L);
-    user3.setUserId(3L);
+    user1.setId(1L);
+    user2.setId(2L);
+    user3.setId(3L);
     userList.add(user1);
     userList.add(user2);
     userList.add(user3);
@@ -42,13 +43,13 @@ public class UserServiceImplTest {
 
   @Test
   void testFindById() {
-    user1.setUserId(1L);
+    user1.setId(1L);
 
     when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
 
     User found = userService.findById(1L);
 
-    assertEquals(1L, found.getUserId());
+    assertEquals(1L, found.getId());
     verify(userRepository).findById(1L);
   }
 
@@ -61,8 +62,8 @@ public class UserServiceImplTest {
 
   @Test
   void testSave() {
-    User user99 = new User();
-    user99.setUserId(99L);
+    User user99 = BaseEntity.getNewWithDefaultDates(User.class);
+    user99.setId(99L);
 
     when(userRepository.save(user99)).thenReturn(user99);
 
@@ -71,7 +72,7 @@ public class UserServiceImplTest {
     verify(userRepository).save(user99);
 
     assertNotNull(savedUser);
-    assertEquals(99L, savedUser.getUserId());
+    assertEquals(99L, savedUser.getId());
   }
 
   @Test

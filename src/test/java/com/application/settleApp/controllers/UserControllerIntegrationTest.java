@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.application.settleApp.DTOs.UserDTO;
+import com.application.settleApp.models.BaseEntity;
 import com.application.settleApp.models.Role;
 import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.UserRepository;
@@ -53,7 +54,7 @@ public class UserControllerIntegrationTest {
             + ");";
     jdbcTemplate.update(insertRoleSql);
 
-    User userMakingRequests = new User();
+    User userMakingRequests = BaseEntity.getNewWithDefaultDates(User.class);
     userMakingRequests.setEmail("userMakingRequests@example.com");
     String passwordNotHashed = "hashed_password1";
     String passwordHashedStoredInDb =
@@ -125,17 +126,17 @@ public class UserControllerIntegrationTest {
   @Test
   @Transactional
   public void updateUser_Success() throws Exception {
-    User user = new User();
+    User user = BaseEntity.getNewWithDefaultDates(User.class);
     user.setFname("Initial Name");
     User savedUser = userRepository.save(user);
 
     UserDTO userDTO = new UserDTO();
-    userDTO.setUserId(savedUser.getUserId());
+    userDTO.setUserId(savedUser.getId());
     userDTO.setFname("Updated Name");
 
     mockMvc
         .perform(
-            patch("/users/" + savedUser.getUserId())
+            patch("/users/" + savedUser.getId())
                 .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDTO)))
@@ -146,24 +147,24 @@ public class UserControllerIntegrationTest {
   @Test
   @Transactional
   public void deleteUser_Success() throws Exception {
-    User user = new User();
+    User user = BaseEntity.getNewWithDefaultDates(User.class);
     user.setFname("To Be Deleted");
     User savedUser = userRepository.save(user);
 
     mockMvc
-        .perform(delete("/users/" + savedUser.getUserId()).headers(getAuthorizationHeaders()))
+        .perform(delete("/users/" + savedUser.getId()).headers(getAuthorizationHeaders()))
         .andExpect(status().isOk());
 
     mockMvc
-        .perform(get("/users/" + savedUser.getUserId()).headers(getAuthorizationHeaders()))
+        .perform(get("/users/" + savedUser.getId()).headers(getAuthorizationHeaders()))
         .andExpect(status().isNotFound());
   }
 
   @Test
   @Transactional
   public void updateUser_MismatchUserId_ThrowsException() throws Exception {
-    User user = userRepository.save(new User());
-    long pathUserId = user.getUserId() + 999;
+    User user = userRepository.save(BaseEntity.getNewWithDefaultDates(User.class));
+    long pathUserId = user.getId() + 999;
 
     UserDTO userDTO = new UserDTO();
     userDTO.setUserId(pathUserId);
@@ -172,7 +173,7 @@ public class UserControllerIntegrationTest {
 
     mockMvc
         .perform(
-            patch("/users/" + user.getUserId())
+            patch("/users/" + user.getId())
                 .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userJson))

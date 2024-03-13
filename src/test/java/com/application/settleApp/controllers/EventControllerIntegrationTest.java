@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.application.settleApp.DTOs.EventDTO;
 import com.application.settleApp.enums.StatusType;
 import com.application.settleApp.mappers.EventMapper;
+import com.application.settleApp.models.BaseEntity;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.models.Role;
 import com.application.settleApp.models.User;
@@ -63,17 +64,17 @@ public class EventControllerIntegrationTest {
                     + ");";
     jdbcTemplate.update(insertRoleSql);
 
-    testEvent1 = new Event();
+    testEvent1 = BaseEntity.getNewWithDefaultDates(Event.class);
     testEvent1.setEventDate(LocalDate.of(2024, 1, 4));
     testEvent1.setStatus(StatusType.OPEN);
     testEvent1 = eventRepository.save(testEvent1);
 
-    testEvent2 = new Event();
+    testEvent2 = BaseEntity.getNewWithDefaultDates(Event.class);
     testEvent2.setEventDate(LocalDate.of(2024, 2, 4));
     testEvent2.setStatus(StatusType.OPEN);
     testEvent2 = eventRepository.save(testEvent2);
 
-    User userMakingRequests = new User();
+    User userMakingRequests = BaseEntity.getNewWithDefaultDates(User.class);
     userMakingRequests.setEmail("userMakingRequests@example.com");
     String passwordNotHashed = "hashed_password1";
     String passwordHashedStoredInDb =
@@ -140,28 +141,28 @@ public class EventControllerIntegrationTest {
   @Test
   @Transactional
   public void updateEventWithParticipantAndVerifyAssociation() throws Exception {
-    User newUser = new User();
+    User newUser = BaseEntity.getNewWithDefaultDates(User.class);
     newUser = userRepository.save(newUser);
 
-    Event newEvent = new Event();
+    Event newEvent = BaseEntity.getNewWithDefaultDates(Event.class);
     newEvent.setStatus(StatusType.OPEN);
     newEvent = eventRepository.save(newEvent);
 
     EventDTO eventDTO = new EventMapper().toDTO(newEvent);
     eventDTO.setStatusType(StatusType.CLOSED);
-    eventDTO.setParticipantIds(Set.of(newUser.getUserId()));
+    eventDTO.setParticipantIds(Set.of(newUser.getId()));
 
     mockMvc
         .perform(
-            patch("/events/" + newEvent.getEventId())
+            patch("/events/" + newEvent.getId())
                 .headers(getAuthorizationHeaders())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(eventDTO)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.statusType").value(StatusType.CLOSED.toString()));
 
-    Event updatedEvent = eventRepository.findById(newEvent.getEventId()).orElseThrow();
-    User updatedUser = userRepository.findById(newUser.getUserId()).orElseThrow();
+    Event updatedEvent = eventRepository.findById(newEvent.getId()).orElseThrow();
+    User updatedUser = userRepository.findById(newUser.getId()).orElseThrow();
 
     assertTrue(
         updatedEvent.getParticipants().contains(updatedUser),
@@ -171,16 +172,16 @@ public class EventControllerIntegrationTest {
   @Test
   @Transactional
   public void deleteEventTest_Success() throws Exception {
-    Event newEvent = new Event();
+    Event newEvent = BaseEntity.getNewWithDefaultDates(Event.class);
     newEvent.setStatus(StatusType.OPEN);
     newEvent = eventRepository.save(newEvent);
 
     mockMvc
-        .perform(delete("/events/" + newEvent.getEventId()).headers(getAuthorizationHeaders()))
+        .perform(delete("/events/" + newEvent.getId()).headers(getAuthorizationHeaders()))
         .andExpect(status().isOk());
 
     mockMvc
-        .perform(get("/events/" + newEvent.getEventId()).headers(getAuthorizationHeaders()))
+        .perform(get("/events/" + newEvent.getId()).headers(getAuthorizationHeaders()))
         .andExpect(status().isNotFound());
   }
 }
