@@ -4,6 +4,7 @@ import com.application.settleApp.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+
   //  @Query(
   //      value =
   //          "SELECT * FROM user u INNER JOIN cost c ON u.user_id = c.user_id WHERE

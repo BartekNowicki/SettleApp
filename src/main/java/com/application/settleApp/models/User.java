@@ -2,9 +2,6 @@ package com.application.settleApp.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -23,8 +20,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-//@Table(name = "user") user is a reserved word and needs to be set as follows otherwise h2 tests throw sql syntax errors:
-@Table(name="`user`")
+// @Table(name = "user") user is a reserved word and needs to be set as follows otherwise h2 tests throw sql syntax errors:
+@Table(name = "`user`")
 public class User extends BaseEntity {
 
   private String fname;
