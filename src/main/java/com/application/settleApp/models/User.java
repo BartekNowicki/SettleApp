@@ -23,7 +23,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "user_table")
+//@Table(name = "user") user is a reserved word and needs to be set as follows otherwise h2 tests throw sql syntax errors:
+@Table(name="`user`")
 public class User extends BaseEntity {
 
   private String fname;

@@ -54,19 +54,17 @@ public class CostControllerIntegrationTest {
   private Event testEvent;
   private String userToken;
 
-
   @BeforeEach
   public void setup() {
     // this is needed because of foreign key costraints
     String insertRoleSql =
-        "INSERT INTO role (role_id, name)\n"
+        "INSERT INTO `role` (role_id, name)\n" // <-- Here
             + "SELECT 1, 'USER'\n"
             + "WHERE NOT EXISTS (\n"
-            + "  SELECT 1 FROM role WHERE role_id = 1\n"
+            + "  SELECT 1 FROM `role` WHERE role_id = 1\n" // <-- Here
             + ");";
     jdbcTemplate.update(insertRoleSql);
     userRepository.deleteAll();
-
 
     testUser1 = userRepository.save(BaseEntity.getNewWithDefaultDates(User.class));
     testUser2 = userRepository.save(BaseEntity.getNewWithDefaultDates(User.class));

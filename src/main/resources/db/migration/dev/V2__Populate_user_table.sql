@@ -1,4 +1,4 @@
-INSERT INTO user_table (fname, lname, email, password)
+INSERT INTO user (fname, lname, email, password)
 VALUES ('InitialUser1_fname', 'InitialUser1_lname', 'user1@example.com',
         '$2b$12$iU/7c.jaS5Ze57mBdxXMUuGrkhjOzeZ3ZZVF6mA6nZMAdUv57jnuK'),
        ('InitialUser2_fname', 'InitialUser2_lname', 'user2@example.com',
