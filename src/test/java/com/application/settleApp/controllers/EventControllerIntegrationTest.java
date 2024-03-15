@@ -18,7 +18,7 @@ import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.EventRepository;
 import com.application.settleApp.repositories.UserRepository;
 import com.application.settleApp.security.AuthRequest;
-import com.application.settleApp.services.JwtTokenService;
+import com.application.settleApp.services.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -43,7 +43,7 @@ public class EventControllerIntegrationTest {
   @Autowired private UserRepository userRepository;
   @Autowired private EventRepository eventRepository;
   @Autowired private ObjectMapper objectMapper;
-  @Autowired private JwtTokenService jwtTokenService;
+  @Autowired private AuthService authService;
   @Autowired private JdbcTemplate jdbcTemplate;
 
   private Event testEvent1;
@@ -87,7 +87,7 @@ public class EventControllerIntegrationTest {
     userRepository.save(userMakingRequests);
     userToken =
         "Bearer "
-            + jwtTokenService.generateToken(
+            + authService.generateToken(
                 new AuthRequest(userMakingRequests.getEmail(), passwordNotHashed));
   }
 

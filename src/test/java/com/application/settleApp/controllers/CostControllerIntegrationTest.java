@@ -22,7 +22,7 @@ import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.EventRepository;
 import com.application.settleApp.repositories.UserRepository;
 import com.application.settleApp.security.AuthRequest;
-import com.application.settleApp.services.JwtTokenService;
+import com.application.settleApp.services.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +46,7 @@ public class CostControllerIntegrationTest {
   @Autowired private EventRepository eventRepository;
   @Autowired private CostRepository costRepository;
   @Autowired private ObjectMapper objectMapper;
-  @Autowired private JwtTokenService jwtTokenService;
+  @Autowired private AuthService authService;
   @Autowired private JdbcTemplate jdbcTemplate;
 
   private User testUser1;
@@ -83,7 +83,7 @@ public class CostControllerIntegrationTest {
     userRepository.save(userMakingRequests);
     userToken =
         "Bearer "
-            + jwtTokenService.generateToken(
+            + authService.generateToken(
                 new AuthRequest(userMakingRequests.getEmail(), passwordNotHashed));
   }
 

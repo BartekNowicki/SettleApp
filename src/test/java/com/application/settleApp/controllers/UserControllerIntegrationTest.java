@@ -15,7 +15,7 @@ import com.application.settleApp.models.Role;
 import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.UserRepository;
 import com.application.settleApp.security.AuthRequest;
-import com.application.settleApp.services.JwtTokenService;
+import com.application.settleApp.services.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +37,7 @@ public class UserControllerIntegrationTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
   @Autowired private UserRepository userRepository;
-  @Autowired private JwtTokenService jwtTokenService;
+  @Autowired private AuthService authService;
   @Autowired private JdbcTemplate jdbcTemplate;
 
   private String userToken;
@@ -69,7 +69,7 @@ public class UserControllerIntegrationTest {
 
     userToken =
         "Bearer "
-            + jwtTokenService.generateToken(
+            + authService.generateToken(
                 new AuthRequest(userMakingRequests.getEmail(), passwordNotHashed));
   }
 

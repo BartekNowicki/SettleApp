@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.application.settleApp.controllers.AuthenticationController;
 import com.application.settleApp.exceptions.AuthenticationFailedException;
 import com.application.settleApp.models.BaseEntity;
 import com.application.settleApp.models.User;
+import com.application.settleApp.repositories.RoleRepository;
 import com.application.settleApp.repositories.UserRepository;
 import com.application.settleApp.security.AuthRequest;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -23,13 +23,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
-public class JwtTokenServiceTest {
+public class AuthServiceTest {
 
   @Mock private UserRepository userRepository;
+  @Mock private RoleRepository roleRepository;
 
   @Mock private PasswordEncoder passwordEncoder;
 
-  @InjectMocks private JwtTokenService jwtTokenService;
+  @InjectMocks private AuthService authService;
 
   private User user;
   private final String rawPassword = "password";
@@ -44,7 +45,7 @@ public class JwtTokenServiceTest {
     user.setPassword(hashedPassword);
 
     when(userRepository.findByEmail("user@example.com")).thenReturn(user);
-    jwtTokenService = new JwtTokenService(userRepository, passwordEncoder, base64EncodedSecretKey);
+    authService = new AuthService(userRepository, roleRepository, passwordEncoder, base64EncodedSecretKey);
   }
 
   @Test
@@ -52,7 +53,7 @@ public class JwtTokenServiceTest {
     AuthRequest request = new AuthRequest("user@example.com", rawPassword);
     when(passwordEncoder.matches(rawPassword, user.getPassword())).thenReturn(true);
 
-    String token = jwtTokenService.generateToken(request);
+    String token = authService.generateToken(request);
     assertNotNull(token);
   }
 
@@ -71,7 +72,7 @@ public class JwtTokenServiceTest {
     assertThrows(
         AuthenticationFailedException.class,
         () -> {
-          jwtTokenService.generateToken(request);
+          authService.generateToken(request);
         },
         "Expected AuthenticationFailedException to be thrown due to password mismatch");
   }

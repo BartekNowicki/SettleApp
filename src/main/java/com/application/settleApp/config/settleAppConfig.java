@@ -5,11 +5,12 @@ import com.application.settleApp.mappers.EventMapper;
 import com.application.settleApp.mappers.UserMapper;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.EventRepository;
+import com.application.settleApp.repositories.RoleRepository;
 import com.application.settleApp.repositories.UserRepository;
 import com.application.settleApp.security.JwtTokenFilter;
+import com.application.settleApp.services.AuthService;
 import com.application.settleApp.services.CostServiceImpl;
 import com.application.settleApp.services.EventServiceImpl;
-import com.application.settleApp.services.JwtTokenService;
 import com.application.settleApp.services.UserServiceImpl;
 import io.jsonwebtoken.security.Keys;
 import java.util.Base64;
@@ -33,6 +34,7 @@ public class settleAppConfig {
   @Autowired private EventRepository eventRepository;
   @Autowired private UserRepository userRepository;
   @Autowired private CostRepository costRepository;
+  @Autowired private RoleRepository roleRepository;
 
   @Value("${jwt.secret}")
   private String secretKey;
@@ -78,8 +80,8 @@ public class settleAppConfig {
   }
 
   @Bean
-  public JwtTokenService jwtTokenService() {
-    return new JwtTokenService(userRepository, passwordEncoder(), secretKey);
+  public AuthService authService(RoleRepository roleRepository) {
+    return new AuthService(userRepository, roleRepository, passwordEncoder(), secretKey);
   }
 
   @Bean
@@ -105,6 +107,7 @@ public class settleAppConfig {
                 requests
                     .requestMatchers(
                         "/authenticate",
+                        "/register",
                         "/v3/api-docs/**",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
