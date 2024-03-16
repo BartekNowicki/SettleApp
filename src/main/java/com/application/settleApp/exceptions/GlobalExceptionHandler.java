@@ -26,7 +26,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       WebRequest request) {
     ApiError apiError =
         new ApiError(HttpStatus.BAD_REQUEST, "http message not readable: " + ex.getMessage());
-    logger.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
+    log.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
     return new ResponseEntity<>(apiError, status);
   }
 
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       WebRequest request) {
     ApiError apiError =
         new ApiError(HttpStatus.BAD_REQUEST, "invalid method argument: " + ex.getMessage());
-    logger.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
+    log.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
     return new ResponseEntity<>(apiError, status);
   }
 
@@ -46,14 +46,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
     ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage());
-    logger.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
+    log.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
     return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
     ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
-    logger.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
+    log.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(RegistrationFailedException.class)
   public ResponseEntity<Object> handleRegistrationFailed(RegistrationFailedException ex) {
     ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
-    logger.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
+    log.info("\u001B" + "[32m" + apiError.getMessage() + "\u001B[0m");
     return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
   }
 }

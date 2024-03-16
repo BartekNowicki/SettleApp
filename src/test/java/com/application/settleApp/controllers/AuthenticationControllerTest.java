@@ -3,6 +3,8 @@ package com.application.settleApp.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -73,5 +75,57 @@ class AuthenticationControllerTest {
         RegistrationFailedException.class,
         () -> authenticationController.register(request),
         "Expected RegistrationFailedException to be thrown due to email already present");
+  }
+
+  @Test
+  void registerFailureDueToBlankEmail() {
+    RegistrationRequest request = new RegistrationRequest("", "password");
+    doThrow(new IllegalArgumentException("Email is required"))
+        .when(authService)
+        .registerUser(any(RegistrationRequest.class));
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> authenticationController.register(request),
+        "Expected failure due to blank email");
+  }
+
+  @Test
+  void registerFailureDueToInvalidEmail() {
+    RegistrationRequest request = new RegistrationRequest("invalid", "password");
+    doThrow(new IllegalArgumentException("Please provide a valid email"))
+        .when(authService)
+        .registerUser(any(RegistrationRequest.class));
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> authenticationController.register(request),
+        "Expected failure due to invalid email");
+  }
+
+  @Test
+  void registerFailureDueToBlankPassword() {
+    RegistrationRequest request = new RegistrationRequest("user@example.com", "");
+    doThrow(new IllegalArgumentException("Password is required"))
+        .when(authService)
+        .registerUser(any(RegistrationRequest.class));
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> authenticationController.register(request),
+        "Expected failure due to blank password");
+  }
+
+  @Test
+  void registerFailureDueToShortPassword() {
+    RegistrationRequest request = new RegistrationRequest("user@example.com", "p");
+    doThrow(new IllegalArgumentException("Password must be at least 3 characters long"))
+        .when(authService)
+        .registerUser(any(RegistrationRequest.class));
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> authenticationController.register(request),
+        "Expected failure due to too short password");
   }
 }
