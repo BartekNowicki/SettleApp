@@ -8,6 +8,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 
+// the default logging framework used is Logback unless swapped
+// it is swapped for Log4J2 in pom.xml for regular logs and P6Spy for sql logs
 @Slf4j
 @SpringBootApplication
 public class SettleAppApplication_BE {
