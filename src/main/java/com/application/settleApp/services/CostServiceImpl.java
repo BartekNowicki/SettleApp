@@ -1,5 +1,6 @@
 package com.application.settleApp.services;
 
+import com.application.settleApp.enums.ExceptionMessage;
 import com.application.settleApp.models.Cost;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.models.User;
@@ -21,7 +22,8 @@ public class CostServiceImpl implements CostService {
   public Cost findById(Long id) {
     return costRepository
         .findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Cost not found with id: " + id));
+        .orElseThrow(
+            () -> new EntityNotFoundException(ExceptionMessage.COST_NOT_FOUND.getMessage() + id));
   }
 
   @Override
@@ -40,7 +42,9 @@ public class CostServiceImpl implements CostService {
         eventRepository
             .findById(relatedEventId)
             .orElseThrow(
-                () -> new EntityNotFoundException("Event not found with id: " + relatedEventId));
+                () ->
+                    new EntityNotFoundException(
+                        ExceptionMessage.EVENT_NOT_FOUND.getMessage() + relatedEventId));
     cost.setEvent(event);
     event.addCost(cost);
 
@@ -65,7 +69,7 @@ public class CostServiceImpl implements CostService {
   @Transactional
   public Cost delete(Cost cost) {
     if (cost == null) {
-      throw new IllegalArgumentException("Cannot delete a null cost.");
+      throw new IllegalArgumentException(ExceptionMessage.CANNOT_DELETE_NULL_COST.getMessage());
     }
     removeCostFromUserAndEvent(cost);
     costRepository.delete(cost);
@@ -78,7 +82,9 @@ public class CostServiceImpl implements CostService {
     Cost cost =
         costRepository
             .findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Cost not found with id: " + id));
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessage.COST_NOT_FOUND.getMessage() + id));
     removeCostFromUserAndEvent(cost);
     costRepository.delete(cost);
 

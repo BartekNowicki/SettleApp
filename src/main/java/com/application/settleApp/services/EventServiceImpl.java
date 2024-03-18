@@ -1,5 +1,6 @@
 package com.application.settleApp.services;
 
+import com.application.settleApp.enums.ExceptionMessage;
 import com.application.settleApp.models.Cost;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.models.User;
@@ -23,7 +24,8 @@ public class EventServiceImpl implements EventService {
   public Event findById(Long id) {
     return eventRepository
         .findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id));
+        .orElseThrow(
+            () -> new EntityNotFoundException(ExceptionMessage.EVENT_NOT_FOUND.getMessage() + id));
   }
 
   @Override
@@ -75,7 +77,7 @@ public class EventServiceImpl implements EventService {
   @Transactional
   public Event delete(Event event) {
     if (event == null) {
-      throw new IllegalArgumentException("Cannot delete a null event.");
+      throw new IllegalArgumentException(ExceptionMessage.CANNOT_DELETE_NULL_EVENT.getMessage());
     }
     removeEventFromCostsAndUsers(event);
     eventRepository.delete(event);
@@ -88,7 +90,7 @@ public class EventServiceImpl implements EventService {
     Event event =
         eventRepository
             .findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id));
+            .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.EVENT_NOT_FOUND.getMessage()+ id));
     removeEventFromCostsAndUsers(event);
     eventRepository.delete(event);
 

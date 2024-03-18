@@ -1,5 +1,6 @@
 package com.application.settleApp.controllers;
 
+import com.application.settleApp.enums.ExceptionMessage;
 import com.application.settleApp.exceptions.AuthenticationFailedException;
 import com.application.settleApp.security.AuthRequest;
 import com.application.settleApp.security.AuthResponse;
@@ -28,7 +29,7 @@ public class AuthenticationController {
     if (token != null) {
       return ResponseEntity.ok(new AuthResponse(token));
     } else {
-      throw new AuthenticationFailedException("User authentication failed");
+      throw new AuthenticationFailedException(ExceptionMessage.USER_AUTHENTICATION_FAILED.getMessage());
     }
   }
 
@@ -39,7 +40,8 @@ public class AuthenticationController {
     if (token != null) {
       return ResponseEntity.ok(new AuthResponse(token));
     } else {
-      throw new AuthenticationFailedException("User registration failed");
+      throw new AuthenticationFailedException(
+          ExceptionMessage.USER_REGISTRATION_FAILED.getMessage());
     }
   }
 }

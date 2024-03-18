@@ -1,6 +1,7 @@
 package com.application.settleApp.controllers;
 
 import com.application.settleApp.DTOs.EventDTO;
+import com.application.settleApp.enums.ExceptionMessage;
 import com.application.settleApp.mappers.EventMapper;
 import com.application.settleApp.models.Event;
 import com.application.settleApp.services.EventServiceImpl;
@@ -23,7 +24,7 @@ public class EventController {
   @PostMapping
   public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) {
     if (eventDTO.getEventId() != null) {
-      throw new IllegalArgumentException("Id is autoincremented and should not be provided");
+      throw new IllegalArgumentException(ExceptionMessage.ID_AUTOINCREMENTED.getMessage());
     }
     Event createdEvent = eventService.save(eventMapper.fromDTO(eventDTO));
     return new ResponseEntity<>(eventMapper.toDTO(createdEvent), HttpStatus.CREATED);
@@ -46,7 +47,7 @@ public class EventController {
   public ResponseEntity<EventDTO> updateEvent(
       @PathVariable Long eventId, @RequestBody EventDTO eventDTO) {
     if (eventDTO.getEventId() != null && !Objects.equals(eventId, eventDTO.getEventId())) {
-      throw new IllegalArgumentException("Mismatch between path variable eventId and eventDTO id");
+      throw new IllegalArgumentException(ExceptionMessage.MISMATCH_EVENT_ID.getMessage());
     }
 
     Event updatedEvent;

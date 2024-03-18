@@ -9,6 +9,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.application.settleApp.DTOs.EventDTO;
+import com.application.settleApp.enums.ExceptionMessage;
 import com.application.settleApp.enums.StatusType;
 import com.application.settleApp.mappers.EventMapper;
 import com.application.settleApp.models.BaseEntity;
@@ -126,7 +127,7 @@ public class EventControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(eventDTO)))
         .andExpect(status().isBadRequest())
         .andExpect(
-            content().string(containsString("Id is autoincremented and should not be provided")));
+            content().string(containsString(ExceptionMessage.ID_AUTOINCREMENTED.getMessage())));
   }
 
   @Test

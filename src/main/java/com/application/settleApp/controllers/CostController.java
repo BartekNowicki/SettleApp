@@ -1,6 +1,7 @@
 package com.application.settleApp.controllers;
 
 import com.application.settleApp.DTOs.CostDTO;
+import com.application.settleApp.enums.ExceptionMessage;
 import com.application.settleApp.mappers.CostMapper;
 import com.application.settleApp.models.Cost;
 import com.application.settleApp.services.CostServiceImpl;
@@ -23,10 +24,11 @@ public class CostController {
   @PostMapping
   public ResponseEntity<CostDTO> createCost(@RequestBody CostDTO costDTO) {
     if (costDTO.getProductId() != null) {
-      throw new IllegalArgumentException("Id is autoincremented and should not be provided");
+      throw new IllegalArgumentException(ExceptionMessage.ID_AUTOINCREMENTED.getMessage());
     }
     if (costDTO.getUserId() == null || costDTO.getEventId() == null) {
-      throw new IllegalArgumentException("Both userId and eventId must be provided");
+      throw new IllegalArgumentException(
+          ExceptionMessage.BOTH_USERID_EVENTID_REQUIRED.getMessage());
     }
     Cost createdCost =
         costService.save(costMapper.fromDTO(costDTO), costDTO.getUserId(), costDTO.getEventId());
@@ -50,7 +52,7 @@ public class CostController {
   public ResponseEntity<CostDTO> updateCost(
       @PathVariable Long costId, @RequestBody CostDTO costDTO) {
     if (costDTO.getProductId() != null && !Objects.equals(costId, costDTO.getProductId())) {
-      throw new IllegalArgumentException("Mismatch between path variable costId and costDTO id");
+      throw new IllegalArgumentException(ExceptionMessage.MISMATCH_COST_ID.getMessage());
     }
     Cost updatedCost =
         costService.save(costMapper.fromDTO(costDTO), costDTO.getUserId(), costDTO.getEventId());

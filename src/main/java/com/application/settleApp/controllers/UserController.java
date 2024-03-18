@@ -1,6 +1,7 @@
 package com.application.settleApp.controllers;
 
 import com.application.settleApp.DTOs.UserDTO;
+import com.application.settleApp.enums.ExceptionMessage;
 import com.application.settleApp.mappers.UserMapper;
 import com.application.settleApp.models.User;
 import com.application.settleApp.services.UserServiceImpl;
@@ -23,7 +24,7 @@ public class UserController {
   @PostMapping
   public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
     if (userDTO.getUserId() != null) {
-      throw new IllegalArgumentException("Id is autoincremented and should not be provided");
+      throw new IllegalArgumentException(ExceptionMessage.ID_AUTOINCREMENTED.getMessage());
     }
     User createdUser = userService.save(userMapper.fromDTO(userDTO));
     return new ResponseEntity<>(userMapper.toDTO(createdUser), HttpStatus.CREATED);
@@ -46,7 +47,7 @@ public class UserController {
   public ResponseEntity<UserDTO> updateUser(
       @PathVariable Long userId, @RequestBody UserDTO userDTO) {
     if (userDTO.getUserId() != null && !Objects.equals(userId, userDTO.getUserId())) {
-      throw new IllegalArgumentException("Mismatch between path variable userId and userDTO id");
+      throw new IllegalArgumentException(ExceptionMessage.MISMATCH_USER_ID.getMessage());
     }
     User user = userMapper.fromDTO(userDTO);
     User updatedUser = userService.save(user);

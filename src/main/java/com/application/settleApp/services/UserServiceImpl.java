@@ -1,5 +1,6 @@
 package com.application.settleApp.services;
 
+import com.application.settleApp.enums.ExceptionMessage;
 import com.application.settleApp.models.User;
 import com.application.settleApp.repositories.CostRepository;
 import com.application.settleApp.repositories.UserRepository;
@@ -18,7 +19,8 @@ public class UserServiceImpl implements UserService {
   public User findById(Long id) {
     return userRepository
         .findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+        .orElseThrow(
+            () -> new EntityNotFoundException(ExceptionMessage.USER_NOT_FOUND.getMessage() + id));
   }
 
   @Override
@@ -42,7 +44,7 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public User delete(User user) {
     if (user == null) {
-      throw new IllegalArgumentException("Cannot delete a null user.");
+      throw new IllegalArgumentException(ExceptionMessage.CANNOT_DELETE_NULL_USER.getMessage());
     }
     removeUserFromCostsAndEvents(user);
     userRepository.delete(user);
