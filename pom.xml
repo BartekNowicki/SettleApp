@@ -13,10 +13,16 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>settleApp</name>
     <description>SettleApp helps settle what you owe to others after an event.</description>
+<!--    <properties>-->
+<!--        <java.version>21</java.version>-->
+<!--        <maven.compiler.source>21</maven.compiler.source>-->
+<!--        <maven.compiler.target>21</maven.compiler.target>-->
+<!--        <sentry.version>7.3.0</sentry.version>-->
+<!--    </properties>-->
     <properties>
-        <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <sentry.version>7.3.0</sentry.version>
     </properties>
     <dependencies>
